@@ -16,14 +16,12 @@ class Namespace(k8s.core.v1.Namespace):
 
 
 class Namespaces:
+    __DEFAULT_NAMESPACES = ["default", "kube-node-lease", "kube-public", "kube-system"]
     __namespaces = {}
 
     def __init__(self) -> None:
-        pass
-        self.__import_default_ns("default")
-        self.__import_default_ns("kube-node-lease")
-        self.__import_default_ns("kube-public")
-        self.__import_default_ns("kube-system")
+        for ns in self.__DEFAULT_NAMESPACES:
+            self.__import_default_ns(ns)
 
     def create_ns(self, name, fixed_name: bool = False, args=None, opts=None):
         ns = Namespace(name, fixed_name, args, opts=opts)
@@ -48,5 +46,5 @@ class Namespaces:
                 ),
                 spec=k8s.core.v1.NamespaceSpecArgs(finalizers=["kubernetes"]),
             ),
-            opts=ResourceOptions(import_=name),
+            opts=ResourceOptions(import_=name, retain_on_delete=True),
         )
