@@ -12,7 +12,7 @@ class Namespace(k8s.core.v1.Namespace):
 
         ns = k8s.core.v1.Namespace(name, args, opts)
         self.__metadata = ns.metadata
-        self.name = self.__metadata.name
+        self.name = self.__metadata["name"]
 
 
 class Namespaces:
