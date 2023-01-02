@@ -1,60 +1,13 @@
 # pyright: reportShadowedImports=false
 import pulumi_kubernetes as k8s
-import pulumi
-from pulumi import ResourceOptions
 from namespaces import namespaces
+import storageclass
+
+storageclass.init()
 
 nss = namespaces.Namespaces()
 
-kubesystem_ns = nss.import_ns(
-    "kube-system",
-    k8s.core.v1.NamespaceInitArgs(
-        metadata=k8s.meta.v1.ObjectMetaArgs(
-            name="kube-system", labels={"kubernetes.io/metadata.name": "kube-system"}
-        ),
-        spec=k8s.core.v1.NamespaceSpecArgs(finalizers=["kubernetes"]),
-    ),
-    opts=ResourceOptions(import_="kube-system"),
-)
-
-storage_class = k8s.storage.v1.StorageClass(
-    "default",
-    provisioner="kubernetes.io/no-provisioner",
-    # volume_binding_mode="WaitForFirstConsumer",
-    volume_binding_mode="Immediate",
-    metadata=k8s.meta.v1.ObjectMetaArgs(
-        name="default",
-        annotations={"storageclass.kubernetes.io/is-default-class": "true"},
-    ),
-)
-pulumi.export("storage_class_name", storage_class.metadata.name)
-
-# k8s.core.v1.PersistentVolume(
-#     "local-pv",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(name="default"),
-#     spec=k8s.core.v1.PersistentVolumeSpecArgs(
-#         capacity={"storage": "20Gi"},
-#         access_modes=["ReadWriteOnce"],
-#         persistent_volume_reclaim_policy="Retain",
-#         storage_class_name="default",
-#         local=k8s.core.v1.LocalVolumeSourceArgs(path="dev/sda2"),
-#         node_affinity=k8s.core.v1.VolumeNodeAffinityArgs(
-#             required=k8s.core.v1.NodeSelectorArgs(
-#                 node_selector_terms=[
-#                     k8s.core.v1.NodeSelectorTermArgs(
-#                         match_expressions=[
-#                             k8s.core.v1.NodeSelectorRequirementArgs(
-#                                 key="kubernetes.io/hostname",
-#                                 operator="In",
-#                                 values=["k8sfreenode"],
-#                             )
-#                         ]
-#                     )
-#                 ]
-#             )
-#         ),
-#     ),
-# )
+kubesystem_ns = nss.get_ns("kube-system")
 
 auto_csr_approved = k8s.helm.v3.Release(
     "kubelet-csr-approver",
@@ -100,9 +53,7 @@ cilium = k8s.helm.v3.Release(
         values={
             "debug": {"enabled": True},
             "operator": {"replicas": 1},
-            "containerRuntime": {
-                "integration": "crio",
-            },
+            "containerRuntime": {"integration": "crio"},
             "bpf": {"tproxy": True},
         },
     ),
@@ -110,7 +61,6 @@ cilium = k8s.helm.v3.Release(
 
 
 vault_ns = nss.create_ns("vault")
-
 
 cilium = k8s.helm.v3.Release(
     "vault",
@@ -120,9 +70,13 @@ cilium = k8s.helm.v3.Release(
             repo="https://helm.releases.hashicorp.com",
         ),
         namespace=vault_ns.name,
+        # https://github.com/hashicorp/vault-helm/blob/main/values.yaml
         values={
             "server": {
-                "dataStorage": {"size": "1Gi"},
+                "dataStorage": {
+                    "enabled": True,
+                    "size": "1Gi",
+                },
                 "auditStorage": {
                     "enabled": False,
                     "size": "1Gi",
