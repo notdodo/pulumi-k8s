@@ -5,6 +5,9 @@ from pv import persistentvolumes
 import storageclass
 import csr
 import metrics
+import pulumi
+from pulumi_command import local
+
 
 nss = namespaces.Namespaces()
 kubesystem_ns = nss.get_ns("kube-system")
@@ -28,27 +31,81 @@ cilium = k8s.helm.v3.Release(
             "operator": {"replicas": 1},
             "containerRuntime": {"integration": "crio"},
             "bpf": {"tproxy": True},
+            "ingressController": {
+                "enabled": True,
+                "loadBalancerMode": "dedicated",
+            },
+            "hubble": {
+                "relay": {
+                    "enabled": True,
+                },
+                "ui": {
+                    "enabled": True,
+                },
+            },
         },
     ),
 )
 
-
 vault_ns = nss.create_ns("vault")
+
+persistentvolumes.PersistentVolume("vault-pv-datastorage", vault_ns.name, "500M")
+persistentvolumes.PersistentVolume("vault-pv-auditstorage", vault_ns.name, "500M")
+
+# vault_data_pvc = k8s.core.v1.PersistentVolumeClaim(
+#     "data-vault",
+#     metadata=k8s.meta.v1.ObjectMetaArgs(
+#         namespace=vault_ns.name,
+#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
+#     ),
+#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
+#         access_modes=["ReadWriteOnce"],
+#         resources=k8s.core.v1.ResourceRequirementsArgs(
+#             requests={"storage": "500M"},
+#         ),
+#     ),
+# )
+
+# vault_audit_pvc = k8s.core.v1.PersistentVolumeClaim(
+#     "audit-vault",
+#     metadata=k8s.meta.v1.ObjectMetaArgs(
+#         namespace=vault_ns.name,
+#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
+#     ),
+#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
+#         access_modes=["ReadWriteOnce"],
+#         resources=k8s.core.v1.ResourceRequirementsArgs(
+#             requests={"storage": "500M"},
+#         ),
+#     ),
+# )
 
 vault = k8s.helm.v3.Release(
     "vault",
     k8s.helm.v3.ReleaseArgs(
         chart="vault",
         repository_opts=k8s.helm.v3.RepositoryOptsArgs(
-            repo="https://helm.releases.hashicorp.com",
+            repo="https://helm.releases.hashicorp.com/",
         ),
         namespace=vault_ns.name,
         # https://github.com/hashicorp/vault-helm/blob/main/values.yaml
         values={
             "server": {
-                "standalone": {
-                    "enabled": True,
-                },
+                # https://github.com/hashicorp/vault-helm/issues/826
+                # "volumes": [
+                #     {
+                #         "name": "data",
+                #         "persistentVolumeClaim": {"claimName": vault_data_pvc},
+                #     },
+                #     {
+                #         "name": "audit",
+                #         "persistentVolumeClaim": {"claimName": vault_audit_pvc},
+                #     },
+                # ],
+                # "volumeMounts": [
+                #     {"mountPath": "/vault/data", "name": "data"},
+                #     {"mountPath": "/vault/audit", "name": "audit"},
+                # ],
                 "dataStorage": {
                     "enabled": True,
                     "size": "500M",
@@ -63,5 +120,17 @@ vault = k8s.helm.v3.Release(
 )
 
 
-persistentvolumes.PersistentVolume("vault-pv-datastorage", vault_ns.name, "500M")
-persistentvolumes.PersistentVolume("vault-pv-auditstorage", vault_ns.name, "500M")
+out = local.Command(
+    "unseal-vault",
+    create="./vault-utils/unseal.sh",
+    opts=pulumi.ResourceOptions(parent=vault, depends_on=vault),
+)
+
+k8s.core.v1.Secret(
+    "vault-root-token",
+    metadata=k8s.meta.v1.ObjectMetaArgs(namespace=vault_ns.name),
+    immutable=True,
+    string_data={"root-token": out.stdout},
+)
+
+pulumi.export("vault_root_token", out.stdout)

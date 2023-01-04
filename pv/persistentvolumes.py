@@ -11,7 +11,7 @@ class PersistentVolume:
             spec=k8s.core.v1.PersistentVolumeSpecArgs(
                 capacity={"storage": size},
                 access_modes=["ReadWriteOnce"],
-                persistent_volume_reclaim_policy="Retain",
+                persistent_volume_reclaim_policy="Delete",
                 storage_class_name=storageclass,
                 local=k8s.core.v1.LocalVolumeSourceArgs(path="dev/sda2"),
                 node_affinity=k8s.core.v1.VolumeNodeAffinityArgs(

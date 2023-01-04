@@ -7,6 +7,7 @@ def init():
         "default",
         provisioner="kubernetes.io/no-provisioner",
         volume_binding_mode="Immediate",
+        reclaim_policy="Delete",
         metadata=k8s.meta.v1.ObjectMetaArgs(
             name="default",
             annotations={"storageclass.kubernetes.io/is-default-class": "true"},
