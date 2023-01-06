@@ -10,8 +10,8 @@ class Namespace(k8s.core.v1.Namespace):
             )
             args = ns_init
 
-        ns = k8s.core.v1.Namespace(name, args, opts)
-        self.__metadata = ns.metadata
+        namespace = k8s.core.v1.Namespace(name, args, opts)
+        self.__metadata = namespace.metadata
         self.name = self.__metadata["name"]
 
 
@@ -20,21 +20,21 @@ class Namespaces:
     __namespaces = {}
 
     def __init__(self) -> None:
-        for ns in self.__DEFAULT_NAMESPACES:
-            self.__import_default_ns(ns)
+        for namespace in self.__DEFAULT_NAMESPACES:
+            self.__import_default_ns(namespace)
 
     def create_ns(self, name, fixed_name: bool = False, args=None, opts=None):
-        ns = Namespace(name, fixed_name, args, opts=opts)
-        self.__namespaces[name] = ns
-        return ns
+        namespace = Namespace(name, fixed_name, args, opts=opts)
+        self.__namespaces[name] = namespace
+        return namespace
 
     def get_ns(self, name):
         return self.__namespaces[name]
 
     def import_ns(self, name, args=None, opts=None):
-        ns = Namespace(name, True, args, opts=opts)
-        self.__namespaces[name] = ns
-        return ns
+        namespace = Namespace(name, True, args, opts=opts)
+        self.__namespaces[name] = namespace
+        return namespace
 
     def __import_default_ns(self, name):
         self.import_ns(

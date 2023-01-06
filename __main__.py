@@ -1,85 +1,27 @@
 # pyright: reportShadowedImports=false
 import pulumi_kubernetes as k8s
+from pulumi_command import local
+import pulumi
 from namespaces import namespaces
-from pv import persistentvolumes
-import storageclass
+from pvs import persistentvolumes
+from cni import cilium
 import csr
 import metrics
-import pulumi
-from pulumi_command import local
+import storageclass
 
+storageclass.init()
 
 nss = namespaces.Namespaces()
 kubesystem_ns = nss.get_ns("kube-system")
-storageclass.init()
 csr.auto_csr_approver(kubesystem_ns.name)
 metrics.init_metrics_server(kubesystem_ns.name)
 
-
 cilium_ns = nss.create_ns("cilium-system")
-
-cilium = k8s.helm.v3.Release(
-    "cilium",
-    k8s.helm.v3.ReleaseArgs(
-        chart="cilium",
-        repository_opts=k8s.helm.v3.RepositoryOptsArgs(
-            repo="https://helm.cilium.io/",
-        ),
-        namespace=cilium_ns.name,
-        values={
-            "debug": {"enabled": True},
-            "operator": {"replicas": 1},
-            "containerRuntime": {"integration": "crio"},
-            "bpf": {"tproxy": True},
-            "ingressController": {
-                "enabled": True,
-                "loadBalancerMode": "dedicated",
-            },
-            "kubeProxyReplacement": "strict",
-            "hubble": {
-                "relay": {
-                    "enabled": True,
-                },
-                "ui": {
-                    "enabled": True,
-                },
-            },
-        },
-    ),
-)
+cilium_dpl = cilium.init_cilium(cilium_ns.name)
 
 vault_ns = nss.create_ns("vault")
-
 persistentvolumes.PersistentVolume("vault-pv-datastorage", vault_ns.name, "500M")
 persistentvolumes.PersistentVolume("vault-pv-auditstorage", vault_ns.name, "500M")
-
-vault_data_pvc = k8s.core.v1.PersistentVolumeClaim(
-    "data-vault",
-    metadata=k8s.meta.v1.ObjectMetaArgs(
-        namespace=vault_ns.name,
-        labels={"app.kubernetes.io/name": "vault", "component": "server"},
-    ),
-    spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
-        access_modes=["ReadWriteOnce"],
-        resources=k8s.core.v1.ResourceRequirementsArgs(
-            requests={"storage": "500M"},
-        ),
-    ),
-)
-
-vault_audit_pvc = k8s.core.v1.PersistentVolumeClaim(
-    "audit-vault",
-    metadata=k8s.meta.v1.ObjectMetaArgs(
-        namespace=vault_ns.name,
-        labels={"app.kubernetes.io/name": "vault", "component": "server"},
-    ),
-    spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
-        access_modes=["ReadWriteOnce"],
-        resources=k8s.core.v1.ResourceRequirementsArgs(
-            requests={"storage": "500M"},
-        ),
-    ),
-)
 
 vault = k8s.helm.v3.Release(
     "vault",
@@ -118,6 +60,7 @@ vault = k8s.helm.v3.Release(
             },
         },
     ),
+    opts=pulumi.ResourceOptions(depends_on=cilium_dpl),
 )
 
 
@@ -128,10 +71,38 @@ out = local.Command(
 )
 
 k8s.core.v1.Secret(
-    "vault-root-token",
+    "vault-root-token",  # To avoid losing access: TODO
     metadata=k8s.meta.v1.ObjectMetaArgs(namespace=vault_ns.name),
     immutable=True,
     string_data={"root-token": out.stdout},
 )
 
 pulumi.export("vault_root_token", out.stdout)
+
+# vault_data_pvc = k8s.core.v1.PersistentVolumeClaim(
+#     "data-vault",
+#     metadata=k8s.meta.v1.ObjectMetaArgs(
+#         namespace=vault_ns.name,
+#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
+#     ),
+#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
+#         access_modes=["ReadWriteOnce"],
+#         resources=k8s.core.v1.ResourceRequirementsArgs(
+#             requests={"storage": "500M"},
+#         ),
+#     ),
+# )
+
+# vault_audit_pvc = k8s.core.v1.PersistentVolumeClaim(
+#     "audit-vault",
+#     metadata=k8s.meta.v1.ObjectMetaArgs(
+#         namespace=vault_ns.name,
+#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
+#     ),
+#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
+#         access_modes=["ReadWriteOnce"],
+#         resources=k8s.core.v1.ResourceRequirementsArgs(
+#             requests={"storage": "500M"},
+#         ),
+#     ),
+# )
