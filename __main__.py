@@ -35,6 +35,7 @@ cilium = k8s.helm.v3.Release(
                 "enabled": True,
                 "loadBalancerMode": "dedicated",
             },
+            "kubeProxyReplacement": "strict",
             "hubble": {
                 "relay": {
                     "enabled": True,
@@ -52,33 +53,33 @@ vault_ns = nss.create_ns("vault")
 persistentvolumes.PersistentVolume("vault-pv-datastorage", vault_ns.name, "500M")
 persistentvolumes.PersistentVolume("vault-pv-auditstorage", vault_ns.name, "500M")
 
-# vault_data_pvc = k8s.core.v1.PersistentVolumeClaim(
-#     "data-vault",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=vault_ns.name,
-#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
-#     ),
-#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
-#         access_modes=["ReadWriteOnce"],
-#         resources=k8s.core.v1.ResourceRequirementsArgs(
-#             requests={"storage": "500M"},
-#         ),
-#     ),
-# )
+vault_data_pvc = k8s.core.v1.PersistentVolumeClaim(
+    "data-vault",
+    metadata=k8s.meta.v1.ObjectMetaArgs(
+        namespace=vault_ns.name,
+        labels={"app.kubernetes.io/name": "vault", "component": "server"},
+    ),
+    spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
+        access_modes=["ReadWriteOnce"],
+        resources=k8s.core.v1.ResourceRequirementsArgs(
+            requests={"storage": "500M"},
+        ),
+    ),
+)
 
-# vault_audit_pvc = k8s.core.v1.PersistentVolumeClaim(
-#     "audit-vault",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=vault_ns.name,
-#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
-#     ),
-#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
-#         access_modes=["ReadWriteOnce"],
-#         resources=k8s.core.v1.ResourceRequirementsArgs(
-#             requests={"storage": "500M"},
-#         ),
-#     ),
-# )
+vault_audit_pvc = k8s.core.v1.PersistentVolumeClaim(
+    "audit-vault",
+    metadata=k8s.meta.v1.ObjectMetaArgs(
+        namespace=vault_ns.name,
+        labels={"app.kubernetes.io/name": "vault", "component": "server"},
+    ),
+    spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
+        access_modes=["ReadWriteOnce"],
+        resources=k8s.core.v1.ResourceRequirementsArgs(
+            requests={"storage": "500M"},
+        ),
+    ),
+)
 
 vault = k8s.helm.v3.Release(
     "vault",

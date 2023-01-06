@@ -127,10 +127,10 @@
         },
         "pulumi-command": {
             "hashes": [
-                "sha256:7945121a4931b911fcca8f11b504f177a72141c65558130db79cbd37a606e184"
+                "sha256:1bfa7601ed5d1af7da518c7bd3ab74fc419597a235a6ab18c39b4d8b73486c0c"
             ],
             "index": "pypi",
-            "version": "==0.7.0"
+            "version": "==0.7.1a1672951057"
         },
         "pyyaml": {
             "hashes": [
