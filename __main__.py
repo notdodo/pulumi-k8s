@@ -60,7 +60,6 @@ vault = k8s.helm.v3.Release(
             },
         },
     ),
-    opts=pulumi.ResourceOptions(depends_on=cilium_dpl),
 )
 
 
