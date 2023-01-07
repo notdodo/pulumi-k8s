@@ -28,6 +28,10 @@ class Namespaces:
         self.__namespaces[name] = namespace
         return namespace
 
+    def create_namespaces(self, namespaces: list):
+        for ns in namespaces:
+            self.create_ns(ns, fixed_name=False)
+
     def get_ns(self, name):
         return self.__namespaces[name]
 
