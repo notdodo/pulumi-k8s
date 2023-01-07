@@ -13,21 +13,21 @@ class PersistentVolume:
                 access_modes=["ReadWriteOnce"],
                 persistent_volume_reclaim_policy="Delete",
                 storage_class_name=storageclass,
-                local=k8s.core.v1.LocalVolumeSourceArgs(path="dev/sda2"),
-                node_affinity=k8s.core.v1.VolumeNodeAffinityArgs(
-                    required=k8s.core.v1.NodeSelectorArgs(
-                        node_selector_terms=[
-                            k8s.core.v1.NodeSelectorTermArgs(
-                                match_expressions=[
-                                    k8s.core.v1.NodeSelectorRequirementArgs(
-                                        key="kubernetes.io/hostname",
-                                        operator="In",
-                                        values=["k8sfreenode"],
-                                    )
-                                ]
-                            )
-                        ]
-                    )
-                ),
+                # local=k8s.core.v1.LocalVolumeSourceArgs(path="dev/sda2"),
+                # node_affinity=k8s.core.v1.VolumeNodeAffinityArgs(
+                #     required=k8s.core.v1.NodeSelectorArgs(
+                #         node_selector_terms=[
+                #             k8s.core.v1.NodeSelectorTermArgs(
+                #                 match_expressions=[
+                #                     k8s.core.v1.NodeSelectorRequirementArgs(
+                #                         key="kubernetes.io/hostname",
+                #                         operator="In",
+                #                         values=["k8sfreenode"],
+                #                     )
+                #                 ]
+                #             )
+                #         ]
+                #     )
+                # ),
             ),
         )

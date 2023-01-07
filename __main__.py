@@ -9,19 +9,17 @@ import csr
 import metrics
 import storageclass
 
-storageclass.init()
-
 nss = namespaces.Namespaces()
 kubesystem_ns = nss.get_ns("kube-system")
 csr.auto_csr_approver(kubesystem_ns.name)
 metrics.init_metrics_server(kubesystem_ns.name)
+openebs_ns = nss.create_ns("openebs")
+storageclass.init(openebs_ns.name, "openebs")
 
 cilium_ns = nss.create_ns("cilium-system")
 cilium_dpl = cilium.init_cilium(cilium_ns.name)
 
 vault_ns = nss.create_ns("vault")
-persistentvolumes.PersistentVolume("vault-pv-datastorage", vault_ns.name, "500M")
-persistentvolumes.PersistentVolume("vault-pv-auditstorage", vault_ns.name, "500M")
 
 vault = k8s.helm.v3.Release(
     "vault",
@@ -34,21 +32,6 @@ vault = k8s.helm.v3.Release(
         # https://github.com/hashicorp/vault-helm/blob/main/values.yaml
         values={
             "server": {
-                # https://github.com/hashicorp/vault-helm/issues/826
-                # "volumes": [
-                #     {
-                #         "name": "data",
-                #         "persistentVolumeClaim": {"claimName": vault_data_pvc},
-                #     },
-                #     {
-                #         "name": "audit",
-                #         "persistentVolumeClaim": {"claimName": vault_audit_pvc},
-                #     },
-                # ],
-                # "volumeMounts": [
-                #     {"mountPath": "/vault/data", "name": "data"},
-                #     {"mountPath": "/vault/audit", "name": "audit"},
-                # ],
                 "dataStorage": {
                     "enabled": True,
                     "size": "500M",
@@ -77,31 +60,3 @@ k8s.core.v1.Secret(
 )
 
 pulumi.export("vault_root_token", out.stdout)
-
-# vault_data_pvc = k8s.core.v1.PersistentVolumeClaim(
-#     "data-vault",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=vault_ns.name,
-#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
-#     ),
-#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
-#         access_modes=["ReadWriteOnce"],
-#         resources=k8s.core.v1.ResourceRequirementsArgs(
-#             requests={"storage": "500M"},
-#         ),
-#     ),
-# )
-
-# vault_audit_pvc = k8s.core.v1.PersistentVolumeClaim(
-#     "audit-vault",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=vault_ns.name,
-#         labels={"app.kubernetes.io/name": "vault", "component": "server"},
-#     ),
-#     spec=k8s.core.v1.PersistentVolumeClaimSpecArgs(
-#         access_modes=["ReadWriteOnce"],
-#         resources=k8s.core.v1.ResourceRequirementsArgs(
-#             requests={"storage": "500M"},
-#         ),
-#     ),
-# )
