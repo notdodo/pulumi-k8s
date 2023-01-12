@@ -9,7 +9,7 @@ import metrics
 import storageclass
 
 nss = namespaces.Namespaces()
-nss.create_namespaces(["openebs", "vault", "cilium-system"])
+nss.create_namespaces(["openebs", "vault", "cilium-system", "osm"])
 csr.auto_csr_approver(nss.get_ns("kube-system").name)
 metrics.init_metrics_server(nss.get_ns("kube-system").name)
 storageclass.init(nss.get_ns("openebs").name, "openebs")
@@ -54,3 +54,41 @@ k8s.core.v1.Secret(
 )
 
 pulumi.export("vault_root_token", out.stdout)
+
+
+osm = k8s.helm.v3.Release(
+    "osm",
+    k8s.helm.v3.ReleaseArgs(
+        chart="osm",
+        repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+            repo="https://openservicemesh.github.io/osm",
+        ),
+        namespace=nss.get_ns("osm").name,
+        values={
+            "osm": {
+                "trustDomain": "dodo.local",
+                # "certificateProvider": {"kind": "vault"},
+            },
+        },
+    ),
+)
+
+# calibre = k8s.helm.v3.Release(
+#     "calibre-web",
+#     k8s.helm.v3.ReleaseArgs(
+#         chart="calibre-web",
+#         repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+#             repo="https://aste88.github.io/helm-charts/",
+#         ),
+#         namespace=nss.get_ns("calibre").name,
+#         values={
+#             "ingress": {"main": {"enabled": True}},
+#             "persistence": {
+#                 "data": {
+#                     "enabled": True,
+#                     "mountPath": "/data",
+#                 }
+#             },
+#         },
+#     ),
+# )
