@@ -12,7 +12,7 @@ def init_cilium(namespace: str = "kube-system"):
             namespace=namespace,
             # Only CNI
             values={
-                "debug": {"enabled": True},
+                # "debug": {"enabled": True},
                 "operator": {"replicas": 1},
                 "containerRuntime": {"integration": "crio"},
                 "bpf": {"tproxy": True},
