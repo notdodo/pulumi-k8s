@@ -4,18 +4,19 @@ from pulumi_command import local
 import pulumi
 from namespaces import namespaces
 from cni import cilium
-from servicemesh import servicemesh as sm
+
+# from servicemesh import servicemesh as sm
 import csr
 import metrics
 import storageclass
 
 nss = namespaces.Namespaces()
-nss.create_namespaces(["openebs", "vault", "cilium-system", "osm"])
+nss.create_namespaces(["openebs", "vault", "cilium-system"])
+cilium.init_cilium(nss.get_ns("cilium-system").name)
 csr.auto_csr_approver(nss.get_ns("kube-system").name)
-metrics.init_metrics_server(nss.get_ns("kube-system").name)
 storageclass.init(nss.get_ns("openebs").name, "openebs")
-# cilium.init_cilium(nss.get_ns("cilium-system").name)
-sm.init_sm()
+metrics.init_metrics_server(nss.get_ns("kube-system").name)
+# sm.init_sm(nss.get_ns("osm").name)
 
 vault = k8s.helm.v3.Release(
     "vault",
@@ -41,7 +42,6 @@ vault = k8s.helm.v3.Release(
     ),
 )
 
-
 out = local.Command(
     "unseal-vault",
     create="./vault-utils/unseal.sh",
@@ -53,6 +53,28 @@ k8s.core.v1.Secret(
     metadata=k8s.meta.v1.ObjectMetaArgs(namespace=nss.get_ns("vault").name),
     immutable=True,
     string_data={"root-token": out.stdout},
+    opts=pulumi.ResourceOptions(parent=vault, depends_on=out),
 )
 
 pulumi.export("vault_root_token", out.stdout)
+
+
+nss.create_ns("argocd", fixed_name=True)
+nss.create_ns("juicer", fixed_name=True)
+
+
+def set_namespace(obj, opts):
+    if "namespace" not in obj["metadata"]:
+        obj["metadata"]["namespace"] = nss.get_ns("argocd").name
+
+
+argocd = k8s.yaml.ConfigFile(
+    "argocd",
+    "./argocd/install.yaml",
+    transformations=[set_namespace],
+)
+
+argocd = k8s.yaml.ConfigFile(
+    "argocd-juicer-app",
+    "./argocd/juicer-app.yaml",
+)
