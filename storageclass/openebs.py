@@ -14,7 +14,7 @@ def create_native_sg(ns: str):
             namespace=ns,
         ),
     )
-    return storage_class
+    return storage_class, "default"
 
 
 def create_openebs_sg(ns: str):
@@ -30,6 +30,7 @@ def create_openebs_sg(ns: str):
             values={
                 "ndm": {"enabled": False},
                 "ndmOperator": {"enabled": False},
+                "localprovisioner": {"enableDeviceClass": False},
             },
         ),
         opts=pulumi.ResourceOptions(provider=provider),
@@ -49,7 +50,7 @@ def create_openebs_sg(ns: str):
         ),
         opts=pulumi.ResourceOptions(provider=provider, depends_on=openebs),
     )
-    return storage_class
+    return storage_class, "openebs-hostpath"
 
 
 def init(ns: str, storage_class_type: str = "native"):

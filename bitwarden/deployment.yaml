@@ -1,0 +1,240 @@
+---
+# Source: vaultwarden/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vaultwarden-svc
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+---
+# Source: vaultwarden/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+type: Opaque
+data:
+  SMTP_USERNAME: ''
+  SMTP_PASSWORD: ''
+  ADMIN_TOKEN: 'UkBuZG9tVG9rZW4kdHJpbmc='
+---
+# Source: vaultwarden/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+data:
+  DOMAIN: 'https://bt.thedodo.xyz'
+  # SMTP_HOST: ''
+  # SMTP_SECURITY: 'starttls'
+  # SMTP_PORT: '25'
+  # SMTP_AUTH_MECHANISM: 'Plain'
+  # SMTP_FROM: ''
+  # SMTP_FROM_NAME: 'Vaultwarden'
+  # SMTP_DEBUG: 'false'
+  # SMTP_ACCEPT_INVALID_HOSTNAMES: 'false'
+  # SMTP_ACCEPT_INVALID_CERTS: 'false'
+  WEBSOCKET_ENABLED: 'true'
+  WEBSOCKET_ADDRESS: '0.0.0.0'
+  WEBSOCKET_PORT: '3012'
+  DATA_FOLDER: '/data'
+  ROCKET_PORT: '8080'
+  ROCKET_WORKERS: '10'
+  SHOW_PASSWORD_HINT: 'false'
+  SIGNUPS_ALLOWED: 'true'
+  INVITATIONS_ALLOWED: 'true'
+  SIGNUPS_DOMAINS_WHITELIST: 'contoso.com'
+  SIGNUPS_VERIFY: 'true'
+  WEB_VAULT_ENABLED: 'true'
+---
+# Source: vaultwarden/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+rules:
+  - apiGroups: ['extensions', 'apps']
+    resources: ['deployments']
+    verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+  - apiGroups: ['']
+    resources: ['pods']
+    verbs: ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch']
+  - apiGroups: ['']
+    resources: ['pods/exec']
+    verbs: ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch']
+  - apiGroups: ['']
+    resources: ['pods/log']
+    verbs: ['get', 'list', 'watch']
+  - apiGroups: ['']
+    resources: ['secrets']
+    verbs: ['get']
+---
+# Source: vaultwarden/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vaultwarden
+subjects:
+  - kind: ServiceAccount
+    name: vaultwarden-svc
+---
+# Source: vaultwarden/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+spec:
+  type: 'ClusterIP'
+  selector:
+    app.kubernetes.io/component: vaultwarden
+  ports:
+    - name: 'http'
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+    - name: 'websocket'
+      port: 3012
+      protocol: TCP
+      targetPort: 3012
+---
+# Source: vaultwarden/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+spec:
+  serviceName: vaultwarden
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vaultwarden
+      app.kubernetes.io/component: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+        app.kubernetes.io/component: vaultwarden
+    spec:
+      initContainers:
+      containers:
+        - image: docker.io/vaultwarden/server:1.24.0
+          imagePullPolicy: IfNotPresent
+          name: vaultwarden
+          envFrom:
+            - configMapRef:
+                name: vaultwarden
+          env:
+            - name: SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden
+                  key: SMTP_USERNAME
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden
+                  key: SMTP_PASSWORD
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden
+                  key: ADMIN_TOKEN
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 3012
+              name: websocket
+              protocol: TCP
+          volumeMounts:
+            - name: vaultwarden-data
+              mountPath: /data
+          resources:
+            limits:
+              cpu: 300m
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 256Mi
+      serviceAccountName: vaultwarden-svc
+  volumeClaimTemplates:
+    - metadata:
+        name: vaultwarden-data
+      spec:
+        accessModes:
+          - 'ReadWriteOnce'
+        resources:
+          requests:
+            storage: 15Gi
+        storageClassName: openebs-hostpath
+---
+# Source: vaultwarden/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden
+  namespace: bitw
+  labels:
+    app.kubernetes.io/component: vaultwarden
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Request-Id: $req_id";
+    nginx.ingress.kubernetes.io/connection-proxy-header: 'keep-alive'
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/limit-connections: '25'
+    nginx.ingress.kubernetes.io/limit-rps: '15'
+    nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '10'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '1800'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '1800'
+spec:
+  ingressClassName: 'nginx'
+  tls:
+    - hosts:
+        - 'bt.thedodo.xyz'
+      secretName:
+  rules:
+    - host: 'bt.thedodo.xyz'
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  name: 'http'
+          - path: /notifications/hub
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  name: 'websocket'
