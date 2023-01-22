@@ -30,7 +30,10 @@ class Namespaces:
 
     def create_namespaces(self, namespaces: list):
         for ns in namespaces:
-            self.create_ns(ns, fixed_name=False)
+            if len(ns) == 2:
+                self.create_ns(ns[0], fixed_name=ns[1])
+            else:
+                self.create_ns(ns, fixed_name=False)
 
     def get_ns(self, name):
         return self.__namespaces[name]

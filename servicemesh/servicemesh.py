@@ -1,7 +1,40 @@
 import pulumi_kubernetes as k8s
+import pulumi
+from pulumi_kubernetes_cert_manager import CertManager, ReleaseArgs
 
 
-def init_sm(namespace: str):
+def cert_manager(namespace: str, deps: list = []):
+    cert_manager = CertManager(
+        "cert-manager",
+        install_crds=True,
+        helm_options=ReleaseArgs(
+            namespace=namespace,
+        ),
+    )
+
+    k8s.helm.v3.Release(
+        "trust-manager",
+        k8s.helm.v3.ReleaseArgs(
+            chart="trust-manager",
+            cleanup_on_fail=True,
+            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                repo="https://charts.jetstack.io",
+            ),
+            namespace=namespace,
+            values={
+                "app": {
+                    "trust": {"namespace": namespace},
+                },
+            },
+        ),
+        opts=pulumi.ResourceOptions(
+            parent=cert_manager, depends_on=deps.append(cert_manager)
+        ),
+    )
+    return cert_manager
+
+
+def init_osm(namespace: str):
     k8s.helm.v3.Release(
         "osm",
         k8s.helm.v3.ReleaseArgs(
@@ -12,7 +45,7 @@ def init_sm(namespace: str):
             namespace=namespace,
             values={
                 "osm": {
-                    "trustDomain": "dodo.local",
+                    "trustDomain": "cluster.local",
                     "enablePermissiveTrafficPolicy": True,
                     "deployPrometheus": True,
                     "deployGrafana": True,
@@ -22,3 +55,57 @@ def init_sm(namespace: str):
             },
         ),
     )
+
+
+def init_linkerd(namespace: str, deps: list = []):
+    crds = k8s.helm.v3.Release(
+        "linkerd-crds",
+        k8s.helm.v3.ReleaseArgs(
+            chart="linkerd-crds",
+            cleanup_on_fail=True,
+            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                repo="https://helm.linkerd.io/stable",
+            ),
+            namespace=namespace,
+        ),
+        opts=pulumi.ResourceOptions(depends_on=deps),
+    )
+
+    bootstrapca = k8s.yaml.ConfigFile(
+        "bootstrapca",
+        "./servicemesh/linkerd_bootstrapca.yaml",
+        opts=pulumi.ResourceOptions(parent=crds, depends_on=crds),
+    )
+
+    cp = k8s.helm.v3.Release(
+        "linkerd-control-plane",
+        k8s.helm.v3.ReleaseArgs(
+            chart="linkerd-control-plane",
+            cleanup_on_fail=True,
+            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                repo="https://helm.linkerd.io/stable",
+            ),
+            namespace=namespace,
+            values={
+                "identity": {
+                    "externalCA": True,
+                    "issuer": {"scheme": "kubernetes.io/tls"},
+                },
+            },
+        ),
+        opts=pulumi.ResourceOptions(
+            parent=crds, depends_on=deps.append([crds, bootstrapca])
+        ),
+    )
+
+    # k8s.helm.v3.Release(
+    #     "linkerd-viz",
+    #     k8s.helm.v3.ReleaseArgs(
+    #         chart="linkerd-viz",
+    #         repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+    #             repo="https://helm.linkerd.io/stable",
+    #         ),
+    #         namespace=namespace,
+    #     ),
+    #     opts=pulumi.ResourceOptions(depends_on=deps.append([cp, crds])),
+    # )
