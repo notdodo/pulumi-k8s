@@ -24,10 +24,9 @@ network = cilium.init_cilium(nss.get_ns("cilium-system").name)
 csr.auto_csr_approver(nss.get_ns("kube-system").name)
 storage, storage_name = openebs.init(nss.get_ns("openebs").name, "openebs")
 metrics.init_metrics_server(nss.get_ns("kube-system").name, deps=[network])
-vault.init_vault(nss.get_ns("vault").name, storage_name, deps=[network, storage])
-
 cert_mg = sm.cert_manager(nss.get_ns("cert-manager").name, deps=[network])
 mesh = sm.init_linkerd(nss.get_ns("linkerd").name, deps=[network, cert_mg])
+vault.init_vault(nss.get_ns("vault").name, storage_name, deps=[network, storage, mesh])
 
 # nss.create_ns("argocd", fixed_name=True)
 # argocd.init_argocd(nss.get_ns("argocd").name)

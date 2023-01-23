@@ -1,5 +1,6 @@
 import pulumi_kubernetes as k8s
 import pulumi
+from provider import provider
 
 
 def create_native_sg(ns: str):
@@ -18,7 +19,6 @@ def create_native_sg(ns: str):
 
 
 def create_openebs_sg(ns: str):
-    provider = k8s.Provider("k8s", enable_server_side_apply=True)
     openebs = k8s.helm.v3.Release(
         "openebs",
         k8s.helm.v3.ReleaseArgs(
@@ -27,6 +27,7 @@ def create_openebs_sg(ns: str):
                 repo="https://openebs.github.io/charts",
             ),
             namespace=ns,
+            wait_for_jobs=True,
             values={
                 "ndm": {"enabled": False},
                 "ndmOperator": {"enabled": False},

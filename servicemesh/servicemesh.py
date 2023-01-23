@@ -9,14 +9,16 @@ def cert_manager(namespace: str, deps: list = []):
         install_crds=True,
         helm_options=ReleaseArgs(
             namespace=namespace,
+            wait_for_jobs=True,
         ),
     )
 
-    k8s.helm.v3.Release(
+    trust_manager = k8s.helm.v3.Release(
         "trust-manager",
         k8s.helm.v3.ReleaseArgs(
             chart="trust-manager",
             cleanup_on_fail=True,
+            wait_for_jobs=True,
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://charts.jetstack.io",
             ),
@@ -31,7 +33,7 @@ def cert_manager(namespace: str, deps: list = []):
             parent=cert_manager, depends_on=deps.append(cert_manager)
         ),
     )
-    return cert_manager
+    return trust_manager
 
 
 def init_osm(namespace: str):
@@ -67,14 +69,9 @@ def init_linkerd(namespace: str, deps: list = []):
                 repo="https://helm.linkerd.io/stable",
             ),
             namespace=namespace,
+            wait_for_jobs=True,
         ),
         opts=pulumi.ResourceOptions(depends_on=deps),
-    )
-
-    bootstrapca = k8s.yaml.ConfigFile(
-        "bootstrapca",
-        "./servicemesh/linkerd_bootstrapca.yaml",
-        opts=pulumi.ResourceOptions(parent=crds, depends_on=crds),
     )
 
     cp = k8s.helm.v3.Release(
@@ -93,19 +90,27 @@ def init_linkerd(namespace: str, deps: list = []):
                 },
             },
         ),
+        opts=pulumi.ResourceOptions(parent=crds, depends_on=deps.append(crds)),
+    )
+
+    bootstrapca = k8s.yaml.ConfigFile(
+        "bootstrapca",
+        "./servicemesh/linkerd_bootstrapca.yaml",
+        opts=pulumi.ResourceOptions(parent=crds, depends_on=deps.append(crds)),
+    )
+
+    k8s.helm.v3.Release(
+        "linkerd-viz",
+        k8s.helm.v3.ReleaseArgs(
+            chart="linkerd-viz",
+            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                repo="https://helm.linkerd.io/stable",
+            ),
+            namespace=namespace,
+        ),
         opts=pulumi.ResourceOptions(
-            parent=crds, depends_on=deps.append([crds, bootstrapca])
+            parent=cp, depends_on=deps.append([cp, crds, bootstrapca])
         ),
     )
 
-    # k8s.helm.v3.Release(
-    #     "linkerd-viz",
-    #     k8s.helm.v3.ReleaseArgs(
-    #         chart="linkerd-viz",
-    #         repository_opts=k8s.helm.v3.RepositoryOptsArgs(
-    #             repo="https://helm.linkerd.io/stable",
-    #         ),
-    #         namespace=namespace,
-    #     ),
-    #     opts=pulumi.ResourceOptions(depends_on=deps.append([cp, crds])),
-    # )
+    return cp

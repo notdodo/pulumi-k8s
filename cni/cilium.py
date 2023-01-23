@@ -10,6 +10,7 @@ def init_cilium(namespace: str = "kube-system"):
                 repo="https://helm.cilium.io/",
             ),
             namespace=namespace,
+            wait_for_jobs=True,
             # Only CNI
             values={
                 "debug": {"enabled": True},

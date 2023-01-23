@@ -14,6 +14,7 @@ def init_vault(
                 repo="https://helm.releases.hashicorp.com/",
             ),
             namespace=namespace,
+            wait_for_jobs=True,
             # https://github.com/hashicorp/vault-helm/blob/main/values.yaml
             values={
                 "server": {

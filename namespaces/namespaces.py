@@ -4,13 +4,24 @@ from pulumi import ResourceOptions
 
 class Namespace(k8s.core.v1.Namespace):
     def __init__(self, name: str, fixed_name: bool = False, args=None, opts=None):
-        if fixed_name and args is None:
+        if fixed_name:
             ns_init = k8s.core.v1.NamespaceInitArgs(
-                metadata=k8s.meta.v1.ObjectMetaArgs(name=name)
+                metadata=k8s.meta.v1.ObjectMetaArgs(name=name),
             )
             args = ns_init
 
-        namespace = k8s.core.v1.Namespace(name, args, opts)
+        # if args is None:
+        #     args = k8s.core.v1.NamespaceInitArgs(
+        #         metadata=k8s.meta.v1.ObjectMetaArgs(
+        #             annotations={"linkerd.io/inject": "enabled"}
+        #         ),
+        #     )
+
+        namespace = k8s.core.v1.Namespace(
+            name,
+            args,
+            opts,
+        )
         self.__metadata = namespace.metadata
         self.name = self.__metadata["name"]
 
