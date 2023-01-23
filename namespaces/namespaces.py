@@ -4,7 +4,7 @@ from pulumi import ResourceOptions
 
 class Namespace(k8s.core.v1.Namespace):
     def __init__(self, name: str, fixed_name: bool = False, args=None, opts=None):
-        if fixed_name:
+        if fixed_name and args is None:
             ns_init = k8s.core.v1.NamespaceInitArgs(
                 metadata=k8s.meta.v1.ObjectMetaArgs(name=name),
             )
