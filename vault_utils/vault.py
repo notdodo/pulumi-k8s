@@ -43,6 +43,6 @@ def init_vault(
         metadata=k8s.meta.v1.ObjectMetaArgs(namespace=namespace),
         immutable=True,
         string_data={"root-token": out.stdout},
-        opts=pulumi.ResourceOptions(parent=vault, depends_on=[out, vault]),
+        opts=pulumi.ResourceOptions(parent=out, depends_on=[out, vault]),
     )
     pulumi.export("vault_root_token", out.stdout)
