@@ -3,9 +3,7 @@ from pulumi_command import local
 import pulumi
 
 
-def init_vault(
-    namespace: str = "vault", storage_class: str = "default", deps: list = []
-):
+def init_vault(namespace: str = "vault", deps: list = []):
     vault = k8s.helm.v3.Release(
         "vault",
         k8s.helm.v3.ReleaseArgs(
@@ -31,6 +29,7 @@ def init_vault(
         ),
         opts=pulumi.ResourceOptions(depends_on=deps),
     )
+    srv = vault.resource_names["Service/v1"][0]
 
     out = local.Command(
         "unseal-vault",
@@ -43,6 +42,8 @@ def init_vault(
         metadata=k8s.meta.v1.ObjectMetaArgs(namespace=namespace),
         immutable=True,
         string_data={"root-token": out.stdout},
-        opts=pulumi.ResourceOptions(parent=out, depends_on=[out, vault]),
+        opts=pulumi.ResourceOptions(parent=out, depends_on=out),
     )
     pulumi.export("vault_root_token", out.stdout)
+
+    return srv

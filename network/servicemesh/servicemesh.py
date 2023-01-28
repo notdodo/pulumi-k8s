@@ -95,7 +95,7 @@ def init_linkerd(namespace: str, deps: list = []):
 
     bootstrapca = k8s.yaml.ConfigFile(
         "bootstrapca",
-        "./servicemesh/linkerd_bootstrapca.yaml",
+        "./network/servicemesh/linkerd_bootstrapca.yaml",
         opts=pulumi.ResourceOptions(parent=crds, depends_on=deps.append(crds)),
     )
 
