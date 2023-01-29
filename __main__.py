@@ -91,6 +91,9 @@ kibana = k8s.helm.v3.Release(
             "podAnnotations": {
                 "linkerd.io/inject": "enabled",
             },
+            "server": {
+                "publicBaseUrl": "elk.thedodo.xyz",
+            },
         },
     ),
     opts=pulumi.ResourceOptions(parent=elk, depends_on=elk),
