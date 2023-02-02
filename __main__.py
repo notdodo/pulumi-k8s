@@ -5,11 +5,12 @@ import pulumi
 import pulumi_kubernetes as k8s
 from network import cilium
 from namespaces import namespaces
-import csr
 import metrics
 import storageclass.openebs as openebs
 import vault_utils.vault as vault
 import network.servicemesh.servicemesh as sm
+
+# import csr
 
 sys.dont_write_bytecode = True
 srv_re = re.compile(r"\/(.*)")
@@ -29,8 +30,11 @@ nss.create_namespaces(
 
 storage, storage_name = openebs.init(nss.get("openebs").name, "openebs")
 network = cilium.init_cilium(nss.get("cilium-system").name)
-csr.auto_csr_approver(nss.get("kube-system").name)
+# csr.auto_csr_approver(nss.get("kube-system").name)
 metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name, deps=[network])
+kube_metrics = metrics.init_kube_state_metrics(
+    nss.get("kube-system").name, deps=[network]
+)
 cert_mg = sm.cert_manager(nss.get("cert-manager").name, deps=[network])
 mesh = sm.init_linkerd(nss.get("linkerd").name, deps=[network, cert_mg])
 vault_srv = vault.init_vault(nss.get("vault").name, deps=[network, storage, mesh])
@@ -147,6 +151,7 @@ k8s.networking.v1.Ingress(
             "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
             "nginx.ingress.kubernetes.io/secure-backends": "true",
             "nginx.ingress.kubernetes.io/proxy-body-size": "8m",
+            "nginx.ingress.kubernetes.io/force-ssl-redirect": "true",
         },
     ),
     spec=k8s.networking.v1.IngressSpecArgs(
@@ -176,127 +181,25 @@ k8s.networking.v1.Ingress(
     opts=pulumi.ResourceOptions(depends_on=[nginx]),
 )
 
-# k8s.networking.v1.Ingress(
-#     "fleet-ingress",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=nss.get("elk").name,
-#         annotations={
-#             "nginx.ingress.kubernetes.io/service-upstream": "true",
-#             "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-#             "nginx.ingress.kubernetes.io/secure-backends": "true",
-#         },
-#     ),
-#     spec=k8s.networking.v1.IngressSpecArgs(
-#         ingress_class_name="nginx",
-#         rules=[
-#             k8s.networking.v1.IngressRuleArgs(
-#                 host="elk-ingestor.thedodo.xyz",
-#                 http=k8s.networking.v1.HTTPIngressRuleValueArgs(
-#                     paths=[
-#                         k8s.networking.v1.HTTPIngressPathArgs(
-#                             path="/",
-#                             path_type="Prefix",
-#                             backend=k8s.networking.v1.IngressBackendArgs(
-#                                 service=k8s.networking.v1.IngressServiceBackendArgs(
-#                                     name="fleet-server-agent-http",
-#                                     port=k8s.networking.v1.ServiceBackendPortArgs(
-#                                         number=8220
-#                                     ),
-#                                 )
-#                             ),
-#                         )
-#                     ]
-#                 ),
-#             )
-#         ],
-#     ),
-#     opts=pulumi.ResourceOptions(depends_on=[nginx]),
-# )
-
-# k8s.networking.v1.Ingress(
-#     "es-ingress",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=nss.get("elk").name,
-#         annotations={
-#             "nginx.ingress.kubernetes.io/service-upstream": "true",
-#             "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-#             "nginx.ingress.kubernetes.io/secure-backends": "true",
-#         },
-#     ),
-#     spec=k8s.networking.v1.IngressSpecArgs(
-#         ingress_class_name="nginx",
-#         rules=[
-#             k8s.networking.v1.IngressRuleArgs(
-#                 host="elk-es.thedodo.xyz",
-#                 http=k8s.networking.v1.HTTPIngressRuleValueArgs(
-#                     paths=[
-#                         k8s.networking.v1.HTTPIngressPathArgs(
-#                             path="/",
-#                             path_type="Prefix",
-#                             backend=k8s.networking.v1.IngressBackendArgs(
-#                                 service=k8s.networking.v1.IngressServiceBackendArgs(
-#                                     name="elasticsearch-es-http",
-#                                     port=k8s.networking.v1.ServiceBackendPortArgs(
-#                                         number=9200
-#                                     ),
-#                                 )
-#                             ),
-#                         )
-#                     ]
-#                 ),
-#             )
-#         ],
-#     ),
-#     opts=pulumi.ResourceOptions(depends_on=[nginx]),
-# )
-
-# k8s.networking.v1.Ingress(
-#     "es-ingress2",
-#     metadata=k8s.meta.v1.ObjectMetaArgs(
-#         namespace=nss.get("elk").name,
-#         annotations={
-#             "nginx.ingress.kubernetes.io/service-upstream": "true",
-#             "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-#             "nginx.ingress.kubernetes.io/secure-backends": "true",
-#             "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
-#         },
-#     ),
-#     spec=k8s.networking.v1.IngressSpecArgs(
-#         ingress_class_name="nginx",
-#         rules=[
-#             k8s.networking.v1.IngressRuleArgs(
-#                 host="elk.thedodo.xyz",
-#                 http=k8s.networking.v1.HTTPIngressRuleValueArgs(
-#                     paths=[
-#                         k8s.networking.v1.HTTPIngressPathArgs(
-#                             path="/elk-es(/|$)(.*)",
-#                             path_type="Prefix",
-#                             backend=k8s.networking.v1.IngressBackendArgs(
-#                                 service=k8s.networking.v1.IngressServiceBackendArgs(
-#                                     name="elasticsearch-es-http",
-#                                     port=k8s.networking.v1.ServiceBackendPortArgs(
-#                                         number=9200
-#                                     ),
-#                                 )
-#                             ),
-#                         )
-#                     ]
-#                 ),
-#             )
-#         ],
-#     ),
-#     opts=pulumi.ResourceOptions(depends_on=[nginx]),
-# )
-
 k8s.networking.v1.Ingress(
     "vault-ingress",
     metadata=k8s.meta.v1.ObjectMetaArgs(
         namespace=nss.get("vault").name,
         annotations={
-            "nginx.ingress.kubernetes.io/service-upstream": "true",
+            # "nginx.ingress.kubernetes.io/service-upstream": "true",
+            "nginx.ingress.kubernetes.io/force-ssl-redirect": "true",
+            "nginx.ingress.kubernetes.io/ssl-passthrough": "false",
+            # "cert-manager.io/cluster-issuer": "letsencrypt-prod",
+            # "kubernetes.io/tls-acme": "true",
         },
     ),
     spec=k8s.networking.v1.IngressSpecArgs(
+        # tls=[
+        #     k8s.networking.v1.IngressTLSArgs(
+        #         hosts=["vault.thedodo.xyz"],
+        #         secret_name="cloudflare-api-token-secret",
+        #     )
+        # ],
         ingress_class_name="nginx",
         rules=[
             k8s.networking.v1.IngressRuleArgs(
@@ -317,7 +220,7 @@ k8s.networking.v1.Ingress(
                                 )
                             ),
                         )
-                    ]
+                    ],
                 ),
             )
         ],

@@ -15,3 +15,18 @@ def init_metrics_server(namespace: str, deps: list = []):
         opts=pulumi.ResourceOptions(depends_on=deps),
     )
     return metrics_server
+
+
+def init_kube_state_metrics(namespace: str, deps: list = []):
+    state_metrics = k8s.helm.v3.Release(
+        "kube-state-metrics",
+        k8s.helm.v3.ReleaseArgs(
+            chart="kube-state-metrics",
+            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                repo="https://prometheus-community.github.io/helm-charts",
+            ),
+            namespace=namespace,
+        ),
+        opts=pulumi.ResourceOptions(depends_on=deps),
+    )
+    return state_metrics

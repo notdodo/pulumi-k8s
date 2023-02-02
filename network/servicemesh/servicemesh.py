@@ -33,6 +33,7 @@ def cert_manager(namespace: str, deps: list = []):
             parent=cert_manager, depends_on=deps.append(cert_manager)
         ),
     )
+
     return trust_manager
 
 
