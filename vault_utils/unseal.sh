@@ -4,7 +4,7 @@ NAMESPACE=$(kubectl get ns --no-headers -o custom-columns=':metadata.name' | gre
 if [ $? -ne 0 ]; then echo "No running vault"; exit 0; fi
 
 POD=$(kubectl get pods -n "${NAMESPACE}" --no-headers -o custom-columns=':metadata.name' -l app.kubernetes.io/name=vault)
-kubectl wait pods -n "${NAMESPACE}" -l app.kubernetes.io/name=vault --for condition=Ready=False --for condition=Initialized=True --for condition=Ready=False --force condition=PodScheduled=True --timeout=90s  > /dev/null 2>&1
+kubectl wait pods -n "${NAMESPACE}" -l app.kubernetes.io/name=vault --for condition=Ready=False --for condition=Initialized=True --for condition=Ready=False --for condition=PodScheduled=True --timeout=90s  > /dev/null 2>&1
 
 if ! kubectl exec "${POD}" -n "${NAMESPACE}" -- vault status 2> /dev/null | grep "Sealed" | grep -q 'true'; then echo "Not Sealed"; exit 0; fi
 
