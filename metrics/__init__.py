@@ -1,5 +1,5 @@
-import pulumi_kubernetes as k8s
 import pulumi
+import pulumi_kubernetes as k8s
 
 
 def init_metrics_server(namespace: str, deps: list = []):

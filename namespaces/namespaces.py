@@ -1,5 +1,6 @@
 import pulumi_kubernetes as k8s
 from pulumi import ResourceOptions
+
 from provider import provider
 
 
@@ -21,7 +22,12 @@ class Namespace(k8s.core.v1.Namespace):
 
 
 class Namespaces:
-    __DEFAULT_NAMESPACES = ["default", "kube-node-lease", "kube-public", "kube-system"]
+    __DEFAULT_NAMESPACES = [
+        "default",
+        "kube-node-lease",
+        "kube-public",
+        "kube-system",
+    ]
     __namespaces = {}
 
     def __init__(self) -> None:

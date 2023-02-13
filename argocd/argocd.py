@@ -6,13 +6,13 @@ def init_argocd(namespace: str = "argocd"):
         if "namespace" not in obj["metadata"]:
             obj["metadata"]["namespace"] = namespace
 
-    argocd = k8s.yaml.ConfigFile(
+    k8s.yaml.ConfigFile(
         "argocd",
         "./install.yaml",
         transformations=[set_namespace],
     )
 
-    argocd = k8s.yaml.ConfigFile(
+    k8s.yaml.ConfigFile(
         "argocd-juicer-app",
         "./juicer-app.yaml",
     )
