@@ -148,7 +148,7 @@
                 "sha256:f8303414c7b03f794347ad062c0516cee0e15f7a612abd0ce1e25caf6ceb47df",
                 "sha256:fca62a8301b605b954ad2e9c3666f9d97f63872aa4efcae5492baca2056b74ab"
             ],
-            "markers": "python_full_version >= '3.7.0'",
+            "markers": "python_version >= '3.7'",
             "version": "==3.1.0"
         },
         "click": {
@@ -268,11 +268,11 @@
         },
         "pathspec": {
             "hashes": [
-                "sha256:3a66eb970cbac598f9e5ccb5b2cf58930cd8e3ed86d393d541eaf2d8b1705229",
-                "sha256:64d338d4e0914e91c1792321e6907b5a593f1ab1851de7fc269557a21b30ebbc"
+                "sha256:2798de800fa92780e33acca925945e9a19a133b715067cf165b8866c15a31687",
+                "sha256:d8af70af76652554bd134c22b3e8a1cc46ed7d91edcdd721ef1a0c51a84a5293"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==0.11.0"
+            "version": "==0.11.1"
         },
         "platformdirs": {
             "hashes": [
@@ -303,16 +303,16 @@
         },
         "pulumi": {
             "hashes": [
-                "sha256:ace8dbc105973b205f6aead9f998175dd88ef761f4f0552eb69bc3133561e4bb"
+                "sha256:e5b2b8d8bd9037e7536d4ef63f64121e49a8ec5bdec354b39f954e48a7c48a81"
             ],
             "index": "pypi",
-            "version": "==3.57.1"
+            "version": "==3.58.0"
         },
         "pulumi-kubernetes": {
             "hashes": [
-                "sha256:616ba2a0f5e446eed405782a00c4d8ed1568a7ef6a8c7158b020bf8711383dd8"
+                "sha256:6a346fa7453226b43542125ea27cb2397bb70286b0fd536a6c4882b69eb9e779"
             ],
-            "version": "==3.25.0a1676596092"
+            "version": "==3.25.0a1678992095"
         },
         "pulumi-kubernetes-cert-manager": {
             "hashes": [
@@ -482,11 +482,11 @@
         },
         "pathspec": {
             "hashes": [
-                "sha256:3a66eb970cbac598f9e5ccb5b2cf58930cd8e3ed86d393d541eaf2d8b1705229",
-                "sha256:64d338d4e0914e91c1792321e6907b5a593f1ab1851de7fc269557a21b30ebbc"
+                "sha256:2798de800fa92780e33acca925945e9a19a133b715067cf165b8866c15a31687",
+                "sha256:d8af70af76652554bd134c22b3e8a1cc46ed7d91edcdd721ef1a0c51a84a5293"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==0.11.0"
+            "version": "==0.11.1"
         },
         "platformdirs": {
             "hashes": [
