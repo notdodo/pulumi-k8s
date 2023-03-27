@@ -276,11 +276,11 @@
         },
         "platformdirs": {
             "hashes": [
-                "sha256:024996549ee88ec1a9aa99ff7f8fc819bb59e2c3477b410d90a16d32d6e707aa",
-                "sha256:e5986afb596e4bb5bde29a79ac9061aa955b94fca2399b7aaac4090860920dd8"
+                "sha256:d5b638ca397f25f979350ff789db335903d7ea010ab28903f57b27e1b16c2b08",
+                "sha256:ebe11c0d7a805086e99506aa331612429a72ca7cd52a1f0d277dc4adc20cb10e"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==3.1.1"
+            "version": "==3.2.0"
         },
         "protobuf": {
             "hashes": [
@@ -303,10 +303,10 @@
         },
         "pulumi": {
             "hashes": [
-                "sha256:e5b2b8d8bd9037e7536d4ef63f64121e49a8ec5bdec354b39f954e48a7c48a81"
+                "sha256:170b9260fd9ba9c045b7c565ec39c98290b4a7f9cc7409aa00536cdf70ca1cb1"
             ],
             "index": "pypi",
-            "version": "==3.58.0"
+            "version": "==3.59.1"
         },
         "pulumi-kubernetes": {
             "hashes": [
@@ -490,11 +490,11 @@
         },
         "platformdirs": {
             "hashes": [
-                "sha256:024996549ee88ec1a9aa99ff7f8fc819bb59e2c3477b410d90a16d32d6e707aa",
-                "sha256:e5986afb596e4bb5bde29a79ac9061aa955b94fca2399b7aaac4090860920dd8"
+                "sha256:d5b638ca397f25f979350ff789db335903d7ea010ab28903f57b27e1b16c2b08",
+                "sha256:ebe11c0d7a805086e99506aa331612429a72ca7cd52a1f0d277dc4adc20cb10e"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==3.1.1"
+            "version": "==3.2.0"
         },
         "tomli": {
             "hashes": [
