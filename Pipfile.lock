@@ -303,16 +303,16 @@
         },
         "pulumi": {
             "hashes": [
-                "sha256:602ba5a4e8ba6e63c5594488333b75dd2096ccf2681e61648732e817552f50cd"
+                "sha256:0b0bef3d7fd30545860f097b42d6dfd24ad7b144442f93f90064ffdf17c12306"
             ],
             "index": "pypi",
-            "version": "==3.60.1"
+            "version": "==3.62.0"
         },
         "pulumi-kubernetes": {
             "hashes": [
-                "sha256:6a346fa7453226b43542125ea27cb2397bb70286b0fd536a6c4882b69eb9e779"
+                "sha256:0ea0d7b181f76bb01ef42e7f910bcceb5aa2f925b57be453d3448b27357cf21a"
             ],
-            "version": "==3.25.0a1678992095"
+            "version": "==3.25.0a1680894366"
         },
         "pulumi-kubernetes-cert-manager": {
             "hashes": [
