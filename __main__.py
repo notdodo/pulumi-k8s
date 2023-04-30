@@ -27,12 +27,13 @@ nss.create_namespaces(
     ]
 )
 
-storage, storage_name = openebs.init(nss.get("openebs").name, "openebs")
 network = cilium.init_cilium(nss.get("cilium-system").name)
+storage, storage_name = openebs.init(nss.get("openebs").name, "openebs")
+
 nginx = ingress.init_nginx(nss.get("nginx").name, deps=[network])
 
-metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name, deps=[network])
-csr.auto_csr_approver(nss.get("kube-system").name)
+# metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name, deps=[network])
+# csr.auto_csr_approver(nss.get("kube-system").name)
 kube_metrics = metrics.init_kube_state_metrics(
     nss.get("kube-system").name, deps=[network]
 )
@@ -44,7 +45,5 @@ vault.Vault(
     nss.get("vault").name,
     opts=pulumi.ResourceOptions(depends_on=[network, storage, cert_mg]),
 )
-
-# vault_srv = vault.init_vault(nss.get("vault").name, deps=[network, storage, cert_mg])
 
 # vault.set_ingress(nss.get("vault").name, deps=[nginx])

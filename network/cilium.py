@@ -6,6 +6,7 @@ def init_cilium(namespace: str = "kube-system"):
         "cilium",
         k8s.helm.v3.ReleaseArgs(
             chart="cilium",
+            version="1.12",
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://helm.cilium.io/",
             ),
@@ -14,14 +15,14 @@ def init_cilium(namespace: str = "kube-system"):
             # Only CNI
             values={
                 "debug": {"enabled": True},
+                "rollOutCiliumPods": True,
                 "operator": {"replicas": 1},
                 "containerRuntime": {"integration": "crio"},
-                "bpf": {"tproxy": True},
+                # "bpf": {"tproxy": True},
                 # "ingressController": {
                 #     "enabled": True,
                 #     "loadBalancerMode": "dedicated",
                 # },
-                # "kubeProxyReplacement": "strict",
                 # "hubble": {  # Not working
                 #     "relay": {
                 #         "enabled": True,
