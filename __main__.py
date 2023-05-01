@@ -28,15 +28,16 @@ nss.create_namespaces(
 )
 
 network = cilium.init_cilium(nss.get("cilium-system").name)
+csr.auto_csr_approver(nss.get("kube-system").name)
 storage, storage_name = openebs.init(nss.get("openebs").name, "openebs")
 
 nginx = ingress.init_nginx(nss.get("nginx").name, deps=[network])
 
-# metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name, deps=[network])
-# csr.auto_csr_approver(nss.get("kube-system").name)
+metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name, deps=[network])
 kube_metrics = metrics.init_kube_state_metrics(
     nss.get("kube-system").name, deps=[network]
 )
+
 cert_mg = sm.cert_manager(nss.get("cert-manager").name, deps=[network])
 # mesh = sm.init_linkerd(nss.get("linkerd").name, deps=[network, cert_mg])
 

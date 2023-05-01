@@ -13,7 +13,7 @@ def init_cilium(namespace: str = "kube-system"):
             wait_for_jobs=True,
             # Only CNI
             values={
-                "debug": {"enabled": True},
+                # "debug": {"enabled": True},
                 "rollOutCiliumPods": True,
                 "operator": {"replicas": 1},
                 "containerRuntime": {"integration": "crio"},

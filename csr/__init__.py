@@ -11,11 +11,11 @@ def auto_csr_approver(namespace: str):
             ),
             namespace=namespace,
             values={
-                "providerRegex": ".*",
+                "providerRegex": "k8s(master|worker)",
+                "providerIpPrefixed": "10.0.10.0/24,10.0.100.0/24",
                 "allowedDNSNames": 10,
                 "bypassDnsResolution": True,
                 "bypassHostnameCheck": True,
-                "providerIpPrefixes": "0.0.0.0/0,::/0",
                 "loggingLevel": 10,
             },
         ),
