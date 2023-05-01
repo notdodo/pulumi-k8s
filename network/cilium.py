@@ -6,7 +6,6 @@ def init_cilium(namespace: str = "kube-system"):
         "cilium",
         k8s.helm.v3.ReleaseArgs(
             chart="cilium",
-            version="1.12",
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://helm.cilium.io/",
             ),
