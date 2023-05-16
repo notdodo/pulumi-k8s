@@ -148,7 +148,7 @@
                 "sha256:f8303414c7b03f794347ad062c0516cee0e15f7a612abd0ce1e25caf6ceb47df",
                 "sha256:fca62a8301b605b954ad2e9c3666f9d97f63872aa4efcae5492baca2056b74ab"
             ],
-            "markers": "python_version >= '3.7'",
+            "markers": "python_full_version >= '3.7.0'",
             "version": "==3.1.0"
         },
         "click": {
@@ -303,10 +303,10 @@
         },
         "pulumi": {
             "hashes": [
-                "sha256:bfd3c1d22dc53a2366c3e1eac553e95c4a79e9ca3da690c87bd9f941170c55c9"
+                "sha256:19372f8e29f823a3483415fb28707953ee5f70d41d1cef26b0f7de1e7397def3"
             ],
             "index": "pypi",
-            "version": "==3.67.0"
+            "version": "==3.67.1"
         },
         "pulumi-kubernetes": {
             "hashes": [
