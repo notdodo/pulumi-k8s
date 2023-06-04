@@ -41,10 +41,10 @@ kube_metrics = metrics.init_kube_state_metrics(
 cert_mg = sm.cert_manager(nss.get("cert-manager").name, deps=[network])
 # mesh = sm.init_linkerd(nss.get("linkerd").name, deps=[network, cert_mg])
 
-vault.Vault(
+vault_rsc = vault.Vault(
     "vault",
     nss.get("vault").name,
     opts=pulumi.ResourceOptions(depends_on=[network, storage, cert_mg]),
 )
 
-# vault.set_ingress(nss.get("vault").name, deps=[nginx])
+vault_rsc.set_ingress()

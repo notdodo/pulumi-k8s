@@ -72,8 +72,7 @@ class Vault(pulumi.ComponentResource):
         )
 
     def install_vault(self):
-        self.__init_default_secrets()
-        return k8s.helm.v3.Release(
+        self.__vault_deployment = k8s.helm.v3.Release(
             "vault",
             k8s.helm.v3.ReleaseArgs(
                 chart="vault",
@@ -148,26 +147,19 @@ class Vault(pulumi.ComponentResource):
                 depends_on=[self.__operator, self.__webhook],
             ),
         )
-
-    def __init_default_secrets(self):
-        self.STARTUP_SECRETS = [
-            {
-                "type": "kv",
-                "path": "secret/data/accounts/kibana",
-                "data": {
-                    "data": {"password": "TODOKIBANASECRET"},  # TODO FIXME
-                },
-            }
-        ]
+        return self.__vault_deployment
 
     def set_ingress(self):
+        service_name = self.__vault_deployment.resource_names.apply(
+            lambda x: x.get("Service/v1")[0].split("/")[1]
+        )
         k8s.networking.v1.Ingress(
             "vault-ingress",
             metadata=k8s.meta.v1.ObjectMetaArgs(
                 namespace=self.__namespace,
                 annotations={
                     "nginx.ingress.kubernetes.io/service-upstream": "true",
-                    "nginx.ingress.kubernetes.io/force-ssl-redirect": "true",
+                    "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
                 },
             ),
             spec=k8s.networking.v1.IngressSpecArgs(
@@ -182,9 +174,9 @@ class Vault(pulumi.ComponentResource):
                                     path_type="Prefix",
                                     backend=k8s.networking.v1.IngressBackendArgs(
                                         service=k8s.networking.v1.IngressServiceBackendArgs(
-                                            name="vault-0",
+                                            name=service_name,
                                             port=k8s.networking.v1.ServiceBackendPortArgs(
-                                                number=8200
+                                                number=8200,
                                             ),
                                         )
                                     ),
@@ -198,4 +190,4 @@ class Vault(pulumi.ComponentResource):
 
     def get_random_string(self, length):
         letters = string.ascii_lowercase + string.ascii_uppercase + string.digits
-        return "".join(random.choice(letters) for i in range(length))
+        return "".join(random.choice(letters) for _ in range(length))
