@@ -1,34 +1,34 @@
-apiVersion: 'vault.banzaicloud.com/v1alpha1'
-kind: 'Vault'
+apiVersion: "vault.banzaicloud.com/v1alpha1"
+kind: "Vault"
 metadata:
-  name: 'vault'
+  name: "vault"
   namespace: placeholder
 spec:
   size: 1
-  image: vault:1.6.2
+  image: vault:1.13.1
   # specify a custom bank-vaults image with bankVaultsImage:
   # bankVaultsImage: ghcr.io/banzaicloud/bank-vaults:latest
 
   # Common annotations for all created resources
   annotations:
-    common/annotation: 'true'
+    common/annotation: "true"
 
   # Vault Pods , Services and TLS Secret annotations
   vaultAnnotations:
-    type/instance: 'vault'
-    linkerd.io/inject: 'enabled'
+    type/instance: "vault"
+    linkerd.io/inject: "enabled"
 
   # Vault Configurer Pods and Services annotations
   vaultConfigurerAnnotations:
-    type/instance: 'vaultconfigurer'
+    type/instance: "vaultconfigurer"
 
   # Vault Pods , Services and TLS Secret labels
   vaultLabels:
-    example.com/log-format: 'json'
+    example.com/log-format: "json"
 
   # Vault Configurer Pods and Services labels
   vaultConfigurerLabels:
-    example.com/log-format: 'string'
+    example.com/log-format: "string"
 
   # Support for affinity Rules, same as in PodSpec
   # affinity:
@@ -92,7 +92,7 @@ spec:
   # Support for distributing the generated CA certificate Secret to other namespaces.
   # Define a list of namespaces or use ["*"] for all namespaces.
   caNamespaces:
-    - '*'
+    - "*"
 
   # Support for adding hostnames and IPs to the generated CA certificate.
   # tlsAdditionalHosts:
@@ -116,10 +116,10 @@ spec:
   config:
     storage:
       file:
-        path: '${ .Env.VAULT_STORAGE_FILE }' # An example how Vault config environment interpolation can be used
+        path: "${ .Env.VAULT_STORAGE_FILE }" # An example how Vault config environment interpolation can be used
     listener:
       tcp:
-        address: '0.0.0.0:8200'
+        address: "0.0.0.0:8200"
         # Uncommenting the following line and deleting tls_cert_file and tls_key_file disables TLS
         tls_disable: true
         tls_cert_file: /vault/tls/server.crt
@@ -142,9 +142,9 @@ spec:
         roles:
           # Allow every pod in the default namespace to use the secret kv store
           - name: default
-            bound_service_account_names: ['*']
-            bound_service_account_namespaces: ['*']
-            policies: ['allow_secrets']
+            bound_service_account_names: ["*"]
+            bound_service_account_namespaces: ["*"]
+            policies: ["allow_secrets"]
             ttl: 1h
 
     secrets:
@@ -180,7 +180,7 @@ spec:
     - name: VAULT_LOG_LEVEL
       value: debug
     - name: VAULT_STORAGE_FILE
-      value: '/vault/file'
+      value: "/vault/file"
 
   # If you are using a custom certificate and are setting the hostname in a custom way
   # sidecarEnvsConfig:
@@ -245,12 +245,12 @@ metadata:
   name: vault
   namespace: placeholder
 rules:
-  - apiGroups: ['']
-    resources: ['secrets']
-    verbs: ['*']
-  - apiGroups: ['']
-    resources: ['pods']
-    verbs: ['get', 'update', 'patch']
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["*"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "update", "patch"]
 
 ---
 kind: RoleBinding

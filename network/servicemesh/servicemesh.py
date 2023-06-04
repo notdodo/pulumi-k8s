@@ -22,6 +22,7 @@ def cert_manager(namespace: str, deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://charts.jetstack.io",
             ),
+            version="0.5.0",
             namespace=namespace,
             values={
                 "app": {
@@ -35,29 +36,6 @@ def cert_manager(namespace: str, deps: list = []):
     )
 
     return trust_manager
-
-
-def init_osm(namespace: str):
-    k8s.helm.v3.Release(
-        "osm",
-        k8s.helm.v3.ReleaseArgs(
-            chart="osm",
-            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
-                repo="https://openservicemesh.github.io/osm",
-            ),
-            namespace=namespace,
-            values={
-                "osm": {
-                    "trustDomain": "cluster.local",
-                    "enablePermissiveTrafficPolicy": True,
-                    "deployPrometheus": True,
-                    "deployGrafana": True,
-                    "deployJaeger": True,
-                    "tracing": {"enable": True},
-                },
-            },
-        ),
-    )
 
 
 def init_linkerd(namespace: str, deps: list = []):

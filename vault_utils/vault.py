@@ -39,6 +39,7 @@ class Vault(pulumi.ComponentResource):
                 repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
+                version="1.19.0",
                 namespace=self.__namespace,
                 wait_for_jobs=True,
                 replace=True,
@@ -56,6 +57,7 @@ class Vault(pulumi.ComponentResource):
                 repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
+                version="1.19.0",
                 namespace=self.__namespace,
                 wait_for_jobs=True,
                 replace=True,

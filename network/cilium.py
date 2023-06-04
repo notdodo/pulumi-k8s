@@ -9,6 +9,7 @@ def init_cilium(namespace: str = "kube-system"):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://helm.cilium.io/",
             ),
+            version="1.13.3",
             namespace=namespace,
             wait_for_jobs=True,
             # Only CNI

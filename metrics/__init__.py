@@ -10,6 +10,7 @@ def init_metrics_server(namespace: str, deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://kubernetes-sigs.github.io/metrics-server/",
             ),
+            version="3.10.0",
             namespace=namespace,
         ),
         opts=pulumi.ResourceOptions(depends_on=deps),
@@ -25,6 +26,7 @@ def init_kube_state_metrics(namespace: str, deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://prometheus-community.github.io/helm-charts",
             ),
+            version="5.7.0",
             namespace=namespace,
         ),
         opts=pulumi.ResourceOptions(depends_on=deps),
