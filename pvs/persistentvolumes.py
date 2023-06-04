@@ -3,7 +3,11 @@ import pulumi_kubernetes as k8s
 
 class PersistentVolume:
     def __init__(
-        self, name: str, namespace: str, size: str, storageclass: str = "default"
+        self,
+        name: str,
+        namespace: str,
+        size: str,
+        storageclass: str = "default",
     ):
         k8s.core.v1.PersistentVolume(
             name,

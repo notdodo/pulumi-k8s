@@ -8,10 +8,10 @@ import pulumi_kubernetes as k8s
 
 class Vault(pulumi.ComponentResource):
     __namespace = "vault"
+    __version = "1.19.0"
 
     def __init__(
         self,
-        # t: str,
         name: str,
         namespace: str = "vault",
         props: Optional["pulumi.Inputs"] = None,
@@ -22,14 +22,8 @@ class Vault(pulumi.ComponentResource):
         self.__namespace = namespace
         self.__opts = opts
         self.__operator = self.install_operator()
-        self.__opts.depends_on.append(self.__operator)  # pyright: ignore
         self.__webhook = self.install_webhook()
-        self.__opts.depends_on.append(self.__webhook)  # pyright: ignore
         self.install_vault()
-        # pulumi.export("test", "1234")
-        # this_stack = pulumi.StackReference("notdodo/pulumi-k8s/pulumi-k8s")
-        # exported_bucket_name = this_stack.get_output("test")
-        # exported_bucket_name.apply(lambda x: print(x))
 
     def install_operator(self):
         return k8s.helm.v3.Release(
@@ -39,7 +33,7 @@ class Vault(pulumi.ComponentResource):
                 repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
-                version="1.19.0",
+                version=self.__version,
                 namespace=self.__namespace,
                 wait_for_jobs=True,
                 replace=True,
@@ -57,7 +51,7 @@ class Vault(pulumi.ComponentResource):
                 repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
-                version="1.19.0",
+                version=self.__version,
                 namespace=self.__namespace,
                 wait_for_jobs=True,
                 replace=True,
@@ -77,28 +71,82 @@ class Vault(pulumi.ComponentResource):
             opts=self.__opts,
         )
 
-    def __set_namespace(self, obj, opts=None):
-        if isinstance(obj, list):
-            for i in obj:
-                self.__set_namespace(i)
-        elif isinstance(obj, dict):
-            for k in obj:
-                if k == "xpack.fleet.agentPolicies":
-                    continue
-                elif k == "namespace" or k == "secretNamespace":
-                    obj[k] = self.__namespace
-                elif k == "startupSecrets":
-                    obj[k] = self.STARTUP_SECRETS
-                elif isinstance(obj, dict):
-                    self.__set_namespace(obj[k])
-
     def install_vault(self):
         self.__init_default_secrets()
-        return k8s.yaml.ConfigFile(
+        return k8s.helm.v3.Release(
             "vault",
-            file="./vault_utils/vault.yaml",
-            transformations=[self.__set_namespace],
-            opts=self.__opts,
+            k8s.helm.v3.ReleaseArgs(
+                chart="vault",
+                repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                    repo="https://kubernetes-charts.banzaicloud.com/",
+                ),
+                version=self.__version,
+                namespace=self.__namespace,
+                wait_for_jobs=True,
+                cleanup_on_fail=True,
+                values={
+                    "persistence": {
+                        "enabled": True,
+                        "size": "1G",
+                    },
+                    "unsealer": {
+                        "args": [
+                            "--mode",
+                            "k8s",
+                            "--k8s-secret-namespace",
+                            self.__namespace,
+                            "--k8s-secret-name",
+                            "bank-vaults",
+                        ]
+                    },
+                    "vault": {
+                        "externalConfig": {
+                            "policies": [
+                                {
+                                    "name": "allow_secrets",
+                                    "rules": """path "secret/*" {
+                                                    capabilities = ["create",
+                                                                    "read",
+                                                                    "update",
+                                                                    "delete",
+                                                                    "list"]
+                                                }""",
+                                }
+                            ],
+                            "auth": [
+                                {
+                                    "type": "kubernetes",
+                                    "roles": [
+                                        {
+                                            "name": "default",
+                                            "bound_service_account_names": ["*"],
+                                            "bound_service_account_namespaces": ["*"],
+                                            "policies": ["allow_secrets"],
+                                            "ttl": "1h",
+                                        }
+                                    ],
+                                }
+                            ],
+                            "startupSecrets": [
+                                {
+                                    "type": "kv",
+                                    "path": "secret/data/accounts/aws",
+                                    "data": {
+                                        "data": {
+                                            "AWS_ACCESS_KEY_ID": "secretId",
+                                            "AWS_SECRET_ACCESS_KEY": "s3cr3t",
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            ),
+            opts=pulumi.ResourceOptions(
+                parent=self.__operator,
+                depends_on=[self.__operator, self.__webhook],
+            ),
         )
 
     def __init_default_secrets(self):
