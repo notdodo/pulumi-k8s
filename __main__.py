@@ -23,6 +23,7 @@ nss.create_namespaces(
         ["openebs", False],
         # ["elk", False],
         ["vault", False],
+        ["metallb", False],
         ["nginx", False],
     ]
 )
@@ -31,7 +32,8 @@ network = cilium.init_cilium(nss.get("cilium-system").name)
 csr.auto_csr_approver(nss.get("kube-system").name)
 storage, storage_name = openebs.init(nss.get("openebs").name, "openebs")
 
-nginx = ingress.init_nginx(nss.get("nginx").name, deps=[network])
+lb = ingress.init_load_balancer(nss.get("metallb").name, deps=[network])
+nginx = ingress.init_nginx(nss.get("nginx").name, deps=[network, lb])
 
 metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name, deps=[network])
 kube_metrics = metrics.init_kube_state_metrics(
@@ -47,4 +49,4 @@ vault_rsc = vault.Vault(
     opts=pulumi.ResourceOptions(depends_on=[network, storage, cert_mg]),
 )
 
-vault_rsc.set_ingress()
+# vault_rsc.set_ingress()
