@@ -149,7 +149,7 @@ class Vault(pulumi.ComponentResource):
         )
         return self.__vault_deployment
 
-    def set_ingress(self):
+    def set_ingress(self, deps: list = []):
         service_name = self.__vault_deployment.resource_names.apply(
             lambda x: x.get("Service/v1")[0].split("/")[1]
         )
@@ -185,6 +185,9 @@ class Vault(pulumi.ComponentResource):
                         ),
                     )
                 ],
+            ),
+            opts=pulumi.ResourceOptions(
+                depends_on=deps,
             ),
         )
 

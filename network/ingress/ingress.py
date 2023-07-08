@@ -19,6 +19,7 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
                     # "service": {
                     #     "type": "NodePort",
                     # },
+                    "kind": "DaemonSet",
                     "podAnnotations": {
                         "linkerd.io/inject": "enabled",
                     },
