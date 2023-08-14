@@ -281,29 +281,29 @@
         },
         "protobuf": {
             "hashes": [
-                "sha256:06280093f862e73f624d7538b0db5d342a78116e8fb876b1dc699e8ce5d90265",
-                "sha256:25a65704e122b4589a423d4af5374ad65881289d19cadc3a6e157a7f8dea664c",
-                "sha256:2f7cf60858c65806aeba3c0479f4863b27f34e3728c03e35e570961754e0fea8",
-                "sha256:39bb39f425c15cd017cb3672625045c6b1a9d182d2ed3aa2c861327a7dbc54af",
-                "sha256:423b786af8b3869b4e14ab24f8e9bb6933e9d3fa2625edd63088068de4b418fe",
-                "sha256:5c33a4e5f68b09151b48f80fafd58958666fab1a9cbdd2619b276de96ed7c1b4",
-                "sha256:7b2bfec7cee18828ba19be39c50aa14fddbc4d9669ffee52035f73f558b1fdbf",
-                "sha256:886a2030bb38a73786bfbb17a1899b51f655e1b0a57a0217eb7c7e2d26573743",
-                "sha256:955d924b731f1b4368375b745224448aebb0e8bd1f084fe65de69041f9393f58",
-                "sha256:9aed8c8bc6a3786b834671d18a5a04e2a28a53f73e878100826b74b3682b27d7",
-                "sha256:ab48987d6b0acb4a109b606628f8628271491b25916eaf333647d6370685e791",
-                "sha256:ca898e20c9e096c58a7fc8056d3a56a58182c8cc4a85124603e678c566ac3374",
-                "sha256:f0b6996a69e98333689d39299a76b25b92ecc48b7a986b459532d5f2f43a9b78"
+                "sha256:44825e963008f8ea0d26c51911c30d3e82e122997c3c4568fd0385dd7bacaedf",
+                "sha256:567fe6b0647494845d0849e3d5b260bfdd75692bf452cdc9cb660d12457c055d",
+                "sha256:5ab19ee50037d4b663c02218a811a5e1e7bb30940c79aac385b96e7a4f9daa61",
+                "sha256:5d0ceb9de6e08311832169e601d1fc71bd8e8c779f3ee38a97a78554945ecb85",
+                "sha256:6c817cf4a26334625a1904b38523d1b343ff8b637d75d2c8790189a4064e51c3",
+                "sha256:81cb9c4621d2abfe181154354f63af1c41b00a4882fb230b4425cbaed65e8f52",
+                "sha256:82e6e9ebdd15b8200e8423676eab38b774624d6a1ad696a60d86a2ac93f18201",
+                "sha256:8bb52a2be32db82ddc623aefcedfe1e0eb51da60e18fcc908fb8885c81d72109",
+                "sha256:a38400a692fd0c6944c3c58837d112f135eb1ed6cdad5ca6c5763336e74f1a04",
+                "sha256:a6b1ca92ccabfd9903c0c7dde8876221dc7d8d87ad5c42e095cc11b15d3569c7",
+                "sha256:ae7a1835721086013de193311df858bc12cd247abe4ef9710b715d930b95b33e",
+                "sha256:ae97b5de10f25b7a443b40427033e545a32b0e9dda17bcd8330d70033379b3e5",
+                "sha256:e8834ef0b4c88666ebb7c7ec18045aa0f4325481d724daa624a4cf9f28134653"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==4.24.0rc2"
+            "version": "==4.24.0"
         },
         "pulumi": {
             "hashes": [
-                "sha256:2585acfac6c9ecde758d88c6fe07a83bea00dc7b632ffbc39ee54ad0b26afde7"
+                "sha256:e1f2b7f601694bf0c35d69539d0252ebac8221aa1e5ccb4e0963b03052fabe43"
             ],
             "index": "pypi",
-            "version": "==3.76.1"
+            "version": "==3.78.1"
         },
         "pulumi-kubernetes": {
             "hashes": [
