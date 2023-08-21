@@ -27,7 +27,7 @@ def create_openebs_sg(ns: str):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://openebs.github.io/charts",
             ),
-            version="3.7.0",
+            version="3.8.0",
             namespace=ns,
             wait_for_jobs=True,
             values={
@@ -57,9 +57,8 @@ def create_openebs_sg(ns: str):
 
 
 def init(ns: str, storage_class_type: str = "native"):
-    storage_class = None
-    if storage_class_type == "native":
-        storage_class = create_native_sg(ns)
-    else:
-        storage_class = create_openebs_sg(ns)
-    return storage_class
+    return (
+        create_native_sg(ns)
+        if storage_class_type == "native"
+        else create_openebs_sg(ns)
+    )

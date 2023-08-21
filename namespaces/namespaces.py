@@ -5,19 +5,13 @@ from provider import provider
 
 
 class Namespace(k8s.core.v1.Namespace):
-    def __init__(self, name: str, fixed_name: bool = False, args=None, opts=None):
-        if fixed_name and args is None:
-            ns_init = k8s.core.v1.NamespaceInitArgs(
-                metadata=k8s.meta.v1.ObjectMetaArgs(name=name),
+    def __init__(self, name: str, random_id: bool = True, args=None, opts=None):
+        if not random_id and args is None:
+            args = k8s.core.v1.NamespaceInitArgs(
+                metadata=k8s.meta.v1.ObjectMetaArgs(name=name)
             )
-            args = ns_init
 
-        namespace = k8s.core.v1.Namespace(
-            name,
-            args,
-            opts,
-        )
-        self.__metadata = namespace.metadata
+        self.__metadata = k8s.core.v1.Namespace(name, args, opts).metadata
         self.name = self.__metadata["name"]
 
 
@@ -34,17 +28,14 @@ class Namespaces:
         for namespace in self.__DEFAULT_NAMESPACES:
             self.__import_default_ns(namespace)
 
-    def create(self, name, fixed_name: bool = False, args=None, opts=None):
-        namespace = Namespace(name, fixed_name, args, opts=opts)
+    def create(self, name, random_id: bool = True, args=None, opts=None):
+        namespace = Namespace(name, random_id, args, opts=opts)
         self.__namespaces[name] = namespace
         return namespace
 
-    def create_namespaces(self, namespaces: list):
+    def create_namespaces(self, namespaces: list[dict]):
         for ns in namespaces:
-            if len(ns) == 2:
-                self.create(ns[0], fixed_name=ns[1])
-            else:
-                self.create(ns, fixed_name=False)
+            self.create(ns.get("name"), ns.get("generate_id", True))
 
     def get(self, name):
         return self.__namespaces[name]

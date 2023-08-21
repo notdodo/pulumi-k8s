@@ -1,3 +1,5 @@
+import json
+
 import pulumi
 import pulumi_kubernetes as k8s
 
@@ -10,21 +12,20 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://kubernetes.github.io/ingress-nginx",
             ),
-            version="4.7.0",
+            version="4.7.1",
             namespace=namespace,
             cleanup_on_fail=True,
             values={
                 "controller": {
-                    # "hostPort": {"enabled": True},
-                    # "service": {
-                    #     "type": "NodePort",
-                    # },
+                    "hostPort": {"enabled": True},
                     "kind": "DaemonSet",
                     "podAnnotations": {
                         "linkerd.io/inject": "enabled",
                     },
+                    "config": {
+                        "use-forwarded-headers": True,
+                    },
                 },
-                "rbac": {"create": True},
                 "annotations": {
                     "linkerd.io/inject": "enabled",
                 },
@@ -33,7 +34,10 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
         opts=pulumi.ResourceOptions(depends_on=deps),
     )
 
-def init_load_balancer(namespace: str, deps: list = []) -> pulumi.Resource:
+
+def init_load_balancer(
+    namespace: str, ips: list = [], deps: list = []
+) -> pulumi.Resource:
     lb = k8s.helm.v3.Release(
         "metallb",
         k8s.helm.v3.ReleaseArgs(
@@ -46,13 +50,44 @@ def init_load_balancer(namespace: str, deps: list = []) -> pulumi.Resource:
             cleanup_on_fail=True,
             values={
                 "controller": {
-                    "logLevel": "all",
+                    "logLevel": "warn",
                 },
                 "speaker": {
-                    "logLevel": "all",
-                }
-            }
+                    "logLevel": "warn",
+                    "frr": {"enabled": False},
+                },
+            },
         ),
         opts=pulumi.ResourceOptions(depends_on=deps),
+    )
+
+    ipaddr = k8s.apiextensions.CustomResource(
+        "IPAddressPool-crd",
+        api_version="metallb.io/v1beta1",
+        kind="IPAddressPool",
+        metadata=k8s.meta.v1.ObjectMetaArgs(
+            namespace=namespace,
+            name="default",
+        ),
+        spec={
+            "addresses": ips,
+        },
+        opts=pulumi.ResourceOptions(parent=lb, depends_on=deps.append(lb)),
+    )
+
+    k8s.apiextensions.CustomResource(
+        "L2Advertisement-crd",
+        api_version="metallb.io/v1beta1",
+        kind="L2Advertisement",
+        metadata=k8s.meta.v1.ObjectMetaArgs(
+            namespace=namespace,
+            name="default",
+        ),
+        spec={
+            "ipAddressPools": [
+                "default",
+            ]
+        },
+        opts=pulumi.ResourceOptions(parent=lb, depends_on=deps.append(ipaddr)),
     )
     return lb

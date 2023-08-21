@@ -3,4 +3,8 @@ runtime:
   name: python
   options:
     virtualenv: .venv
-description: Kubernetes mgmt with Python Pulumi
+description: Kubernetes management with Python Pulumi
+config:
+  nodes_ips:
+    - 204.216.216.209/32
+    - 204.216.217.82/32

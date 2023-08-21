@@ -1,15 +1,26 @@
 import pulumi
 import pulumi_kubernetes as k8s
-from pulumi_kubernetes_cert_manager import CertManager, ReleaseArgs
 
 
 def cert_manager(namespace: str, deps: list = []):
-    cert_manager = CertManager(
+    cert_manager = k8s.helm.v3.Release(
         "cert-manager",
-        install_crds=True,
-        helm_options=ReleaseArgs(
-            namespace=namespace,
+        k8s.helm.v3.ReleaseArgs(
+            chart="cert-manager",
+            cleanup_on_fail=True,
             wait_for_jobs=True,
+            repository_opts=k8s.helm.v3.RepositoryOptsArgs(
+                repo="https://charts.jetstack.io",
+            ),
+            version="1.12.3",
+            namespace=namespace,
+            values={
+                "installCRDs": True,
+                # "startupapicheck": {"enabled": False},
+                # "app": {
+                #     "trust": {"namespace": namespace},
+                # },
+            },
         ),
     )
 
