@@ -1,7 +1,7 @@
-import json
-
 import pulumi
 import pulumi_kubernetes as k8s
+
+config = pulumi.Config()
 
 
 def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
@@ -24,6 +24,14 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
                     },
                     "config": {
                         "use-forwarded-headers": True,
+                        "log-format-escape-json": True,
+                        "log-format-upstream": " ".join(
+                            line.strip()
+                            for line in config.get("nginx_log_format").splitlines()
+                        ),
+                        "enable-modsecurity": True,
+                        "enable-owasp-modsecurity-crs": True,
+                        "modsecurity-snippet": config.get("modsecurity_snippet"),
                     },
                 },
                 "annotations": {

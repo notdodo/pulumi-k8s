@@ -114,7 +114,7 @@ class Vault(pulumi.ComponentResource):
                                 {
                                     "name": "hide_cubbyhole",
                                     "rules": """path "/cubbyhole/*" {capabilities = ["deny"]}""",
-                                }
+                                },
                             ],
                             "auth": [
                                 {

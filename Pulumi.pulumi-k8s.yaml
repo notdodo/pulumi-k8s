@@ -1,0 +1,54 @@
+config:
+  pulumi-k8s:modsecurity_snippet: |-
+    SecRuleEngine On
+    SecRequestBodyAccess On
+    SecAuditLog /dev/stdout
+    SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
+    SecRule REQUEST_HEADERS:Content-Type "(?:application(?:/soap\+|/)|text/)xml" "id:200000,phase:1,t:none,t:lowercase,pass,nolog,ctl:requestBodyProcessor=XML"
+    SecRule REQUEST_HEADERS:Content-Type "application/json" "id:200001,phase:1,t:none,t:lowercase,pass,nolog,ctl:requestBodyProcessor=JSON"
+    SecAuditLogParts ABIJDEFHZ
+  pulumi-k8s:nginx_log_format: |-
+    {
+        "timestamp": "$time_iso8601",
+        "network": {
+            "forwarded_ip": "$http_x_forwarded_for"
+        },
+        "user": {
+            "name": "$remote_user"
+        },
+        "user_agent": {
+            "original": "$http_user_agent"
+        },
+        "http": {
+            "version": "$server_protocol",
+            "request": {
+                "body": {
+                    "bytes":$body_bytes_sent
+                },
+                "bytes": $request_length,
+                "method": "$request_method",
+                "referrer": "$http_referer"
+            },
+            "response": {
+                "body": {
+                    "bytes":$body_bytes_sent
+                },
+                "bytes": $bytes_sent,
+                "status_code": "$status",
+                "time":$request_time
+            },
+            "upstream": {
+                "bytes": $upstream_response_length,
+                "status_code": "$upstream_status",
+                "time":$upstream_response_time,
+                "address": "$upstream_addr",
+                "name": "$proxy_upstream_name"
+            }
+        },
+        "url": {
+            "domain": "$host",
+            "path": "$uri",
+            "query": "$args",
+            "original": "$request_uri"
+        }
+    }
