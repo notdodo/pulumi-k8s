@@ -15,22 +15,12 @@ def init_cilium(namespace: str = "kube-system", deps: list = []):
             wait_for_jobs=True,
             # Only CNI
             values={
-                # "debug": {"enabled": True},
                 "rollOutCiliumPods": True,
                 "operator": {"replicas": 1},
                 "containerRuntime": {"integration": "crio"},
-                # "bpf": {"tproxy": True},
                 # "ingressController": {
                 #     "enabled": True,
                 #     "loadBalancerMode": "dedicated",
-                # },
-                # "hubble": {  # Not working
-                #     "relay": {
-                #         "enabled": True,
-                #     },
-                #     "ui": {
-                #         "enabled": True,
-                #     },
                 # },
             },
         ),
