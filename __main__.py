@@ -18,7 +18,7 @@ nss.create_namespaces(
         {"name": "cert-manager", "generate_id": False},
         {"name": "cilium-system"},
         # {"name": "metallb"},
-        {"name": "nginx"},
+        # {"name": "nginx"},
         # {"name": "openebs"},
         # {"name": "vault"},
     ]

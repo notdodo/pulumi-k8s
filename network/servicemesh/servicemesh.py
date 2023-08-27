@@ -33,7 +33,7 @@ def cert_manager(namespace: str, deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://charts.jetstack.io",
             ),
-            version="0.5.0",
+            version="0.6.0",
             namespace=namespace,
             values={
                 "app": {
