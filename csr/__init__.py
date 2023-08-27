@@ -13,7 +13,7 @@ def auto_csr_approver(namespace: str):
             namespace=namespace,
             values={
                 "providerRegex": "k8s(master|worker)",
-                "providerIpPrefixed": "10.0.10.0/24,10.0.100.0/24",
+                "providerIpPrefixed": "10.0.0.0/24,10.0.100.0/24,10.0.200.0/24",
                 "allowedDNSNames": 10,
                 "bypassDnsResolution": True,
                 "bypassHostnameCheck": True,

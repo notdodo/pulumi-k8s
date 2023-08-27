@@ -4,7 +4,3 @@ runtime:
   options:
     virtualenv: .venv
 description: Kubernetes management with Python Pulumi
-config:
-  nodes_ips:
-    - 204.216.216.209/32
-    - 204.216.217.82/32

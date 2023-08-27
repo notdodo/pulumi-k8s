@@ -13,15 +13,10 @@ def init_cilium(namespace: str = "kube-system", deps: list = []):
             version="1.14.1",
             namespace=namespace,
             wait_for_jobs=True,
-            # Only CNI
             values={
                 "rollOutCiliumPods": True,
                 "operator": {"replicas": 1},
                 "containerRuntime": {"integration": "crio"},
-                # "ingressController": {
-                #     "enabled": True,
-                #     "loadBalancerMode": "dedicated",
-                # },
             },
         ),
         opts=ResourceOptions(depends_on=deps),
