@@ -12,8 +12,8 @@ def auto_csr_approver(namespace: str):
             version="1.0.4",
             namespace=namespace,
             values={
-                "providerRegex": "k8s(master|worker)",
-                "providerIpPrefixed": "10.0.0.0/24,10.0.100.0/24,10.0.200.0/24",
+                "providerRegex": "k8s(master|worker)\d*",
+                "providerIpPrefixed": "10.0.0.0/24,10.0.100.0/24,10.0.200.0/24,10.0.300.0/24,10.0.400.0/24",
                 "allowedDNSNames": 10,
                 "bypassDnsResolution": True,
                 "bypassHostnameCheck": True,

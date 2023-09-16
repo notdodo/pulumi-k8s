@@ -15,6 +15,7 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
             version="4.7.2",
             namespace=namespace,
             cleanup_on_fail=True,
+            wait_for_jobs=True,
             values={
                 "controller": {
                     "hostPort": {"enabled": True},
@@ -56,6 +57,7 @@ def init_load_balancer(
             version="0.13.10",
             namespace=namespace,
             cleanup_on_fail=True,
+            wait_for_jobs=True,
             values={
                 "controller": {
                     "logLevel": "warn",

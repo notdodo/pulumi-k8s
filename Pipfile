@@ -5,12 +5,13 @@ name = "pypi"
 
 [packages]
 pulumi = "<4.0.0,>=3.0.0"
-pulumi-kubernetes-cert-manager = "*"
 black = "*"
 flake8 = "*"
 
 [dev-packages]
 black = "*"
+isort = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.10"

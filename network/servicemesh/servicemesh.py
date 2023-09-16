@@ -12,7 +12,7 @@ def cert_manager(namespace: str, deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://charts.jetstack.io",
             ),
-            version="1.12.4",
+            version="1.13.0",
             namespace=namespace,
             values={
                 "installCRDs": True,

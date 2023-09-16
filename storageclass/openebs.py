@@ -33,27 +33,14 @@ def create_openebs_sg(ns: str):
             values={
                 "ndm": {"enabled": False},
                 "ndmOperator": {"enabled": False},
-                "localprovisioner": {"enableDeviceClass": False},
+                "localprovisioner": {"enableDeviceClass": False, "hostpathClass": {
+                    "isDefaultClass": True,
+                }},
             },
         ),
         opts=pulumi.ResourceOptions(provider=provider),
     )
-    # Patch the storage class the make it the default
-    storage_class = k8s.storage.v1.StorageClass(
-        "openebs-hostpath",
-        provisioner="openebs.io/local",
-        volume_binding_mode="WaitForFirstConsumer",
-        reclaim_policy="Delete",
-        metadata=k8s.meta.v1.ObjectMetaArgs(
-            name="openebs-hostpath",
-            annotations={
-                "storageclass.kubernetes.io/is-default-class": "true",
-            },
-            namespace=ns,
-        ),
-        opts=pulumi.ResourceOptions(provider=provider, depends_on=openebs),
-    )
-    return storage_class, "openebs-hostpath"
+    return openebs, "openebs-hostpath"
 
 
 def init(ns: str, storage_class_type: str = "native"):
