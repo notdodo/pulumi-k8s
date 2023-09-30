@@ -34,6 +34,9 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
                         "enable-owasp-modsecurity-crs": True,
                         "modsecurity-snippet": config.get("modsecurity_snippet"),
                     },
+                    "service": {
+                        "externalIPs": config.get_object("cluster_ips")
+                    }
                 },
                 "annotations": {
                     "linkerd.io/inject": "enabled",

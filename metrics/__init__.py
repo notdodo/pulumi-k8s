@@ -29,9 +29,6 @@ def init_kube_state_metrics(namespace: str, deps: list = []):
             version="5.13.0",
             namespace=namespace,
             cleanup_on_fail=True,
-            values={
-                "nodeSelector": {"node.kubernetes.io/role": "master"},
-            },
         ),
         opts=pulumi.ResourceOptions(depends_on=deps),
     )

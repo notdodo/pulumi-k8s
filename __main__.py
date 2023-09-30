@@ -41,4 +41,4 @@ vault_rsc = vault.Vault(
     opts=pulumi.ResourceOptions(depends_on=[network, storage, cert_mg]),
 )
 
-vault_rsc.set_ingress(deps=[nginx])
+vault_rsc.set_ingress(deps=[nginx, vault_rsc])
