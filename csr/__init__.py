@@ -9,7 +9,7 @@ def auto_csr_approver(namespace: str):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://postfinance.github.io/kubelet-csr-approver/",
             ),
-            version="1.0.4",
+            version="1.0.5",
             namespace=namespace,
             values={
                 "providerRegex": "k8s(master|worker)\d*",
