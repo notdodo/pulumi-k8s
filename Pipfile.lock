@@ -163,38 +163,36 @@
         },
         "protobuf": {
             "hashes": [
-                "sha256:02212557a76cd99574775a81fefeba8738d0f668d6abd0c6b1d3adcc75503dbe",
-                "sha256:1badab72aa8a3a2b812eacfede5020472e16c6b2212d737cefd685884c191085",
-                "sha256:2fa3886dfaae6b4c5ed2730d3bf47c7a38a72b3a1f0acb4d4caf68e6874b947b",
-                "sha256:5a70731910cd9104762161719c3d883c960151eea077134458503723b60e3667",
-                "sha256:6b7d2e1c753715dcfe9d284a25a52d67818dd43c4932574307daf836f0071e37",
-                "sha256:80797ce7424f8c8d2f2547e2d42bfbb6c08230ce5832d6c099a37335c9c90a92",
-                "sha256:8e61a27f362369c2f33248a0ff6896c20dcd47b5d48239cb9720134bef6082e4",
-                "sha256:9fee5e8aa20ef1b84123bb9232b3f4a5114d9897ed89b4b8142d81924e05d79b",
-                "sha256:b493cb590960ff863743b9ff1452c413c2ee12b782f48beca77c8da3e2ffe9d9",
-                "sha256:b77272f3e28bb416e2071186cb39efd4abbf696d682cbb5dc731308ad37fa6dd",
-                "sha256:bffa46ad9612e6779d0e51ae586fde768339b791a50610d85eb162daeb23661e",
-                "sha256:dbbed8a56e56cee8d9d522ce844a1379a72a70f453bde6243e3c86c30c2a3d46",
-                "sha256:ec9912d5cb6714a5710e28e592ee1093d68c5ebfeda61983b3f40331da0b1ebb"
+                "sha256:2d65aa406a608bf8b18366d6b25d42bbb205a235a8802da3a46d38c22d4c9d6c",
+                "sha256:44c7c8346d8e64868df452759f1ebf3ecec3a9cf2f45affe837598e2a6dfb15e",
+                "sha256:4a1482f46714f0a428170221bcd780554099392523869a345e0f7aa2c58cae09",
+                "sha256:5b8eeb9970305008acf1c81e12624a7171bff46390a19aa9404a08fab0dff6dc",
+                "sha256:6c00620313178bdad36e5c0c58dac912bb02accb18c10c05116a92adef98d0e2",
+                "sha256:89a42a302b3c67187463616ce39f6f00bc97b84c062298de087fa94eacbe6cc2",
+                "sha256:bb652481451c49ac77ab4d85520c74a5b56d64a5e597ab6d5d02f97c71793219",
+                "sha256:d88d3950bc0afd42ec0dc71fb7e0b5e564f47074a141df6a546e2c93edb93402",
+                "sha256:e0d5d352a97f9ba3aedc1beaa2bdaef86c8c9eb0774a5d9dd48c9d8253d1ffad",
+                "sha256:f27cd197d87b17692615ade1097633a8b9a1d32677e6036ca2b5079484fb94b3",
+                "sha256:f2b101cd374b0ce97b2871e1fb0f207022c3efea074cce85b060966eef4a6be0"
             ],
-            "markers": "python_version >= '3.7'",
-            "version": "==4.24.4"
+            "markers": "python_version >= '3.8'",
+            "version": "==4.25.0rc2"
         },
         "pulumi": {
             "hashes": [
-                "sha256:291e1bbc9ac68f7d05c0a5ec1a6dcfe7571cc358d2b853d6e26e76f634ecc20f"
+                "sha256:f2f70d3b420257aa5b1cf36390104245d12a4e26e797b9c0873999410829f8cd"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==3.87.0"
+            "version": "==3.89.0"
         },
         "pycodestyle": {
             "hashes": [
-                "sha256:259bcc17857d8a8b3b4a2327324b79e5f020a13c16074670f9c8c8f872ea76d0",
-                "sha256:5d1013ba8dc7895b548be5afb05740ca82454fd899971563d2ef625d090326f8"
+                "sha256:41ba0e7afc9752dfb53ced5489e89f8186be00e599e712660695b7a75ff2663f",
+                "sha256:44fe31000b2d866f2e41841b18528a505fbd7fef9017b04eff4e2648a0fadc67"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2.11.0"
+            "version": "==2.11.1"
         },
         "pyflakes": {
             "hashes": [
@@ -391,11 +389,11 @@
         },
         "pycodestyle": {
             "hashes": [
-                "sha256:259bcc17857d8a8b3b4a2327324b79e5f020a13c16074670f9c8c8f872ea76d0",
-                "sha256:5d1013ba8dc7895b548be5afb05740ca82454fd899971563d2ef625d090326f8"
+                "sha256:41ba0e7afc9752dfb53ced5489e89f8186be00e599e712660695b7a75ff2663f",
+                "sha256:44fe31000b2d866f2e41841b18528a505fbd7fef9017b04eff4e2648a0fadc67"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==2.11.0"
+            "version": "==2.11.1"
         },
         "pyflakes": {
             "hashes": [
