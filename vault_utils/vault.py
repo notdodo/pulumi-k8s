@@ -157,8 +157,9 @@ class Vault(pulumi.ComponentResource):
         service_name = self.__vault_deployment.resource_names.apply(
             lambda x: x.get("Service/v1")[0].split("/")[1]
         )
+
         k8s.networking.v1.Ingress(
-            "vault-ingress",
+            resource_name="vault-ingress",
             metadata=k8s.meta.v1.ObjectMetaArgs(
                 namespace=self.__namespace,
                 annotations={

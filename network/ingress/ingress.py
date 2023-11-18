@@ -12,7 +12,7 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://kubernetes.github.io/ingress-nginx",
             ),
-            version="4.8.1",
+            version="4.8.3",
             namespace=namespace,
             cleanup_on_fail=True,
             wait_for_jobs=True,

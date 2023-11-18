@@ -1,7 +1,7 @@
 config:
   pulumi-k8s:cluster_ips:
-    - 129.152.25.29
-    - 204.216.217.176
+    - 204.216.223.139
+    - 129.152.14.150
   pulumi-k8s:modsecurity_snippet: |-
     SecRuleEngine On
     SecRequestBodyAccess On
