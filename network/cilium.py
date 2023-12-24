@@ -10,7 +10,7 @@ def init_cilium(namespace: str = "kube-system", deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://helm.cilium.io/",
             ),
-            version="1.14.4",
+            version="1.14.5",
             namespace=namespace,
             wait_for_jobs=True,
             values={

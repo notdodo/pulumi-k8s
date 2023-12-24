@@ -12,7 +12,7 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://kubernetes.github.io/ingress-nginx",
             ),
-            version="4.8.3",
+            version="4.9.0",
             namespace=namespace,
             cleanup_on_fail=True,
             wait_for_jobs=True,
@@ -34,9 +34,7 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
                         "enable-owasp-modsecurity-crs": True,
                         "modsecurity-snippet": config.get("modsecurity_snippet"),
                     },
-                    "service": {
-                        "externalIPs": config.get_object("cluster_ips")
-                    }
+                    "service": {"externalIPs": config.get_object("cluster_ips")},
                 },
                 "annotations": {
                     "linkerd.io/inject": "enabled",

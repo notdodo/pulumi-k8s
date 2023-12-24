@@ -26,7 +26,7 @@ def init_kube_state_metrics(namespace: str, deps: list = []):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://prometheus-community.github.io/helm-charts",
             ),
-            version="5.14.0",
+            version="5.15.2",
             namespace=namespace,
             cleanup_on_fail=True,
         ),

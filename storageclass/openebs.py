@@ -27,15 +27,18 @@ def create_openebs_sg(ns: str):
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://openebs.github.io/charts",
             ),
-            version="3.9.0",
+            version="3.10.0",
             namespace=ns,
             wait_for_jobs=True,
             values={
                 "ndm": {"enabled": False},
                 "ndmOperator": {"enabled": False},
-                "localprovisioner": {"enableDeviceClass": False, "hostpathClass": {
-                    "isDefaultClass": True,
-                }},
+                "localprovisioner": {
+                    "enableDeviceClass": False,
+                    "hostpathClass": {
+                        "isDefaultClass": True,
+                    },
+                },
             },
         ),
         opts=pulumi.ResourceOptions(provider=provider),
