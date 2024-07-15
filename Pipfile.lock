@@ -483,11 +483,11 @@
         },
         "pulumi": {
             "hashes": [
-                "sha256:278ca09f78f4e00cf0d6badb860430b056423bae96eee263ddbb45d529e6478e"
+                "sha256:f1adecc0d3bb8197ee5405547ad1af2ac669e55d08d6b6ac01acbccbb2344618"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==3.122.0"
+            "version": "==3.124.0"
         },
         "pycodestyle": {
             "hashes": [
