@@ -12,7 +12,7 @@ def init_nginx(namespace: str, deps: list = []) -> pulumi.Resource:
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://kubernetes.github.io/ingress-nginx",
             ),
-            version="4.9.0",
+            version="4.11.1",
             namespace=namespace,
             cleanup_on_fail=True,
             wait_for_jobs=True,
@@ -55,7 +55,7 @@ def init_load_balancer(
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
                 repo="https://metallb.github.io/metallb",
             ),
-            version="0.13.10",
+            version="0.14.8",
             namespace=namespace,
             cleanup_on_fail=True,
             wait_for_jobs=True,

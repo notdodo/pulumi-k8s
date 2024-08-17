@@ -25,9 +25,9 @@ def create_openebs_sg(ns: str):
         k8s.helm.v3.ReleaseArgs(
             chart="openebs",
             repository_opts=k8s.helm.v3.RepositoryOptsArgs(
-                repo="https://openebs.github.io/charts",
+                repo="https://openebs.github.io/openebs",
             ),
-            version="3.10.0",
+            version="4.1.0",
             namespace=ns,
             wait_for_jobs=True,
             values={
