@@ -5,27 +5,27 @@ from typing import Optional
 import pulumi
 import pulumi_kubernetes as k8s
 
+from namespaces import Namespace
+
 
 class Vault(pulumi.ComponentResource):
-    __namespace = "vault"
     __version = "1.19.0"
 
     def __init__(
         self,
         name: str,
         namespace: str = "vault",
-        props: Optional["pulumi.Inputs"] = None,
         opts: Optional[pulumi.ResourceOptions] = None,
         remote: bool = False,
     ) -> None:
-        super().__init__("Vault", name, props, opts, remote)
-        self.__namespace = namespace
+        super().__init__("notdodo:k8s:Vault", name, None, opts, remote)
+        self.__namespace = Namespace(name=namespace)
         self.__opts = opts
         self.__operator = self.install_operator()
         self.__webhook = self.install_webhook()
         self.install_vault()
 
-    def install_operator(self):
+    def install_operator(self) -> k8s.helm.v3.Release:
         return k8s.helm.v3.Release(
             "vault-operator",
             k8s.helm.v3.ReleaseArgs(
@@ -34,7 +34,7 @@ class Vault(pulumi.ComponentResource):
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
                 version=self.__version,
-                namespace=self.__namespace,
+                namespace=self.__namespace.name,
                 wait_for_jobs=True,
                 replace=True,
                 recreate_pods=True,
@@ -43,7 +43,7 @@ class Vault(pulumi.ComponentResource):
             opts=self.__opts,
         )
 
-    def install_webhook(self):
+    def install_webhook(self) -> k8s.helm.v3.Release:
         return k8s.helm.v3.Release(
             "webhook",
             k8s.helm.v3.ReleaseArgs(
@@ -52,7 +52,7 @@ class Vault(pulumi.ComponentResource):
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
                 version=self.__version,
-                namespace=self.__namespace,
+                namespace=self.__namespace.name,
                 wait_for_jobs=True,
                 replace=True,
                 recreate_pods=True,
@@ -71,7 +71,7 @@ class Vault(pulumi.ComponentResource):
             opts=self.__opts,
         )
 
-    def install_vault(self):
+    def install_vault(self) -> k8s.helm.v3.Release:
         self.__vault_deployment = k8s.helm.v3.Release(
             "vault",
             k8s.helm.v3.ReleaseArgs(
@@ -80,7 +80,7 @@ class Vault(pulumi.ComponentResource):
                     repo="https://kubernetes-charts.banzaicloud.com/",
                 ),
                 version=self.__version,
-                namespace=self.__namespace,
+                namespace=self.__namespace.name,
                 wait_for_jobs=True,
                 cleanup_on_fail=True,
                 values={
@@ -93,7 +93,7 @@ class Vault(pulumi.ComponentResource):
                             "--mode",
                             "k8s",
                             "--k8s-secret-namespace",
-                            self.__namespace,
+                            self.__namespace.name,
                             "--k8s-secret-name",
                             "bank-vaults",
                         ]
@@ -153,15 +153,18 @@ class Vault(pulumi.ComponentResource):
         )
         return self.__vault_deployment
 
-    def set_ingress(self, deps: list = []):
+    def set_ingress(
+        self,
+        deps: Optional[list[pulumi.Resource]] = None,
+    ) -> None:
         service_name = self.__vault_deployment.resource_names.apply(
-            lambda x: x.get("Service/v1")[0].split("/")[1]
+            lambda x: x["Service/v1"][0].split("/")[1]  # type: ignore
         )
 
         k8s.networking.v1.Ingress(
             resource_name="vault-ingress",
             metadata=k8s.meta.v1.ObjectMetaArgs(
-                namespace=self.__namespace,
+                namespace=self.__namespace.name,
                 annotations={
                     "nginx.ingress.kubernetes.io/service-upstream": "true",
                     "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
@@ -196,6 +199,6 @@ class Vault(pulumi.ComponentResource):
             ),
         )
 
-    def get_random_string(self, length):
+    def get_random_string(self, length: int) -> str:
         letters = string.ascii_lowercase + string.ascii_uppercase + string.digits
         return "".join(random.choice(letters) for _ in range(length))

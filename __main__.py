@@ -1,44 +1,37 @@
-# pyright: reportShadowedImports=false
 import pulumi
 
 import csr
 import metrics
-import network.ingress.ingress as ingress
+import network as network
 import network.servicemesh.servicemesh as sm
-import storageclass.openebs as openebs
-import vault_utils.vault as vault
+import vault_utils as vault
 from namespaces import namespaces
-from network import cilium
 
 config = pulumi.Config()
 
 nss = namespaces.Namespaces()
-nss.create_namespaces(
-    [
-        {"name": "cert-manager", "generate_id": False},
-        {"name": "cilium-system"},
-        {"name": "nginx"},
-        {"name": "openebs"},
-        {"name": "vault"},
-    ]
-)
+
+cert_manager_ns = namespaces.Namespace(name="cert-manager", random_id=False)
+cilium_system_ns = namespaces.Namespace(name="cilium-system")
+nginx_ns = namespaces.Namespace(name="nginx")
+openebs_ns = namespaces.Namespace(name="openebs")
 
 csr_approver = csr.auto_csr_approver(nss.get("kube-system").name)
-network = cilium.init_cilium(nss.get("cilium-system").name)
+cilium = network.init_cilium(cilium_system_ns.name)
 # storage, storage_name = openebs.init(nss.get("openebs").name, "openebs")
 
 metrics_srv = metrics.init_metrics_server(nss.get("kube-system").name)
 kube_metrics = metrics.init_kube_state_metrics(nss.get("kube-system").name)
 
-nginx = ingress.init_nginx(nss.get("nginx").name, deps=[csr_approver, network])
+nginx = network.init_nginx(nginx_ns.name, deps=[csr_approver, cilium])
 
-cert_mg = sm.cert_manager(nss.get("cert-manager").name, deps=[network])
+cert_mg = sm.cert_manager(cert_manager_ns.name, deps=[cilium])
 # mesh = sm.init_linkerd(nss.get("linkerd").name, deps=[network, cert_mg])
 
 vault_rsc = vault.Vault(
-    "vault",
-    nss.get("vault").name,
-    opts=pulumi.ResourceOptions(depends_on=[network, cert_mg]),
+    name="vault",
+    namespace="vault",
+    opts=pulumi.ResourceOptions(depends_on=[cilium, cert_mg]),
 )
 
 vault_rsc.set_ingress(deps=[nginx, vault_rsc])

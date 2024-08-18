@@ -8,7 +8,7 @@ class PersistentVolume:
         namespace: str,
         size: str,
         storageclass: str = "default",
-    ):
+    ) -> None:
         k8s.core.v1.PersistentVolume(
             name,
             metadata=k8s.meta.v1.ObjectMetaArgs(name=name, namespace=namespace),

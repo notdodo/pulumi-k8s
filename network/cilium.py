@@ -1,8 +1,13 @@
+from typing import Any, Optional, Union
+
 import pulumi_kubernetes as k8s
-from pulumi import ResourceOptions
+from pulumi import Output, Resource, ResourceOptions
 
 
-def init_cilium(namespace: str = "kube-system", deps: list = []):
+def init_cilium(
+    namespace: Union[str, Output[Any]] = "kube-system",
+    deps: Optional[list[Resource]] = None,
+) -> k8s.helm.v3.Release:
     cilium = k8s.helm.v3.Release(
         "cilium",
         k8s.helm.v3.ReleaseArgs(
@@ -16,14 +21,12 @@ def init_cilium(namespace: str = "kube-system", deps: list = []):
             cleanup_on_fail=True,
             values={
                 "ipam": {"mode": "kubernetes"},
-                "image": {"pullPolicy": "IfNotPresent"},
-                "k8sServiceHost": "172.18.0.2",
+                "k8sServiceHost": "dev-control-plane",
                 "k8sServicePort": "6443",
                 "kubeProxyReplacement": True,
-                # "rollOutCiliumPods": True,
+                "rollOutCiliumPods": True,
                 "operator": {"replicas": 1},
-                "kubeProxyReplacement": True,
-                # "containerRuntime": {"integration": "crio"},
+                "containerRuntime": {"integration": "crio"},
             },
         ),
         opts=ResourceOptions(depends_on=deps),

@@ -1,8 +1,13 @@
+from typing import Any, Optional, Union
+
 import pulumi
 import pulumi_kubernetes as k8s
 
 
-def init_metrics_server(namespace: str, deps: list = []):
+def init_metrics_server(
+    namespace: Union[str, pulumi.Output[Any]],
+    deps: Optional[list[pulumi.Resource]] = None,
+) -> k8s.helm.v3.Release:
     metrics_server = k8s.helm.v3.Release(
         "metrics-server",
         k8s.helm.v3.ReleaseArgs(
@@ -18,7 +23,10 @@ def init_metrics_server(namespace: str, deps: list = []):
     return metrics_server
 
 
-def init_kube_state_metrics(namespace: str, deps: list = []):
+def init_kube_state_metrics(
+    namespace: Union[str, pulumi.Output[Any]],
+    deps: Optional[list[pulumi.Resource]] = None,
+) -> k8s.helm.v3.Release:
     state_metrics = k8s.helm.v3.Release(
         "kube-state-metrics",
         k8s.helm.v3.ReleaseArgs(

@@ -1,10 +1,12 @@
+from typing import Tuple
+
 import pulumi
 import pulumi_kubernetes as k8s
 
 from provider import provider
 
 
-def create_native_sg(ns: str):
+def create_native_sg(ns: str) -> Tuple[k8s.storage.v1.StorageClass, str]:
     storage_class = k8s.storage.v1.StorageClass(
         "default",
         provisioner="kubernetes.io/no-provisioner",
@@ -19,7 +21,7 @@ def create_native_sg(ns: str):
     return storage_class, "default"
 
 
-def create_openebs_sg(ns: str):
+def create_openebs_sg(ns: str) -> Tuple[k8s.helm.v3.Release, str]:
     openebs = k8s.helm.v3.Release(
         "openebs",
         k8s.helm.v3.ReleaseArgs(
@@ -46,7 +48,9 @@ def create_openebs_sg(ns: str):
     return openebs, "openebs-hostpath"
 
 
-def init(ns: str, storage_class_type: str = "native"):
+def init(
+    ns: str, storage_class_type: str = "native"
+) -> Tuple[pulumi.CustomResource, str]:
     return (
         create_native_sg(ns)
         if storage_class_type == "native"

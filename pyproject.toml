@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "pulumi-k8s"
+version = "0.1.0"
+description = ""
+authors = ["Edoardo Rosa <6991986+notdodo@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pulumi = "^3.129.0"
+pulumi-kubernetes = "^4.17.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+flake8 = "^7.1.0"
+isort = "^5.13.2"
+mypy = "^1.10.1"
+pydantic = "^2.8.2"
+pylint = "^3.2.5"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+strict = true
+pretty = true
+show_error_codes = true
+show_error_context = true
+implicit_reexport = true
+
+[tool.pylint."MESSAGES CONTROL"]
+persistent = "no"
+disable = ["fixme", "line-too-long"]
+# extension-pkg-whitelist = "pydantic"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,8 +1,12 @@
+from typing import Any, Union
+
 import pulumi
 import pulumi_kubernetes as k8s
 
 
-def cert_manager(namespace: str, deps: list = []):
+def cert_manager(
+    namespace: Union[str, pulumi.Output[Any]], deps: list[pulumi.Resource] = []
+) -> k8s.helm.v3.Release:
     cert_manager = k8s.helm.v3.Release(
         "cert-manager",
         k8s.helm.v3.ReleaseArgs(
@@ -20,6 +24,7 @@ def cert_manager(namespace: str, deps: list = []):
         ),
     )
 
+    deps.append(cert_manager)
     trust_manager = k8s.helm.v3.Release(
         "trust-manager",
         k8s.helm.v3.ReleaseArgs(
@@ -37,15 +42,15 @@ def cert_manager(namespace: str, deps: list = []):
                 },
             },
         ),
-        opts=pulumi.ResourceOptions(
-            parent=cert_manager, depends_on=deps.append(cert_manager)
-        ),
+        opts=pulumi.ResourceOptions(parent=cert_manager, depends_on=deps),
     )
 
     return trust_manager
 
 
-def init_linkerd(namespace: str, deps: list = []):
+def init_linkerd(
+    namespace: str, deps: list[pulumi.Resource] = []
+) -> k8s.helm.v3.Release:
     crds = k8s.helm.v3.Release(
         "linkerd-crds",
         k8s.helm.v3.ReleaseArgs(
@@ -60,6 +65,7 @@ def init_linkerd(namespace: str, deps: list = []):
         opts=pulumi.ResourceOptions(depends_on=deps),
     )
 
+    deps.append(crds)
     cp = k8s.helm.v3.Release(
         "linkerd-control-plane",
         k8s.helm.v3.ReleaseArgs(
@@ -76,15 +82,16 @@ def init_linkerd(namespace: str, deps: list = []):
                 },
             },
         ),
-        opts=pulumi.ResourceOptions(parent=crds, depends_on=deps.append(crds)),
+        opts=pulumi.ResourceOptions(parent=crds, depends_on=deps),
     )
 
     bootstrapca = k8s.yaml.ConfigFile(
         "bootstrapca",
         "./network/servicemesh/linkerd_bootstrapca.yaml",
-        opts=pulumi.ResourceOptions(parent=crds, depends_on=deps.append(crds)),
+        opts=pulumi.ResourceOptions(parent=crds, depends_on=deps),
     )
 
+    deps.extend([cp, crds, bootstrapca])
     k8s.helm.v3.Release(
         "linkerd-viz",
         k8s.helm.v3.ReleaseArgs(
@@ -94,9 +101,7 @@ def init_linkerd(namespace: str, deps: list = []):
             ),
             namespace=namespace,
         ),
-        opts=pulumi.ResourceOptions(
-            parent=cp, depends_on=deps.append([cp, crds, bootstrapca])
-        ),
+        opts=pulumi.ResourceOptions(parent=cp, depends_on=deps),
     )
 
     return cp
