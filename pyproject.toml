@@ -16,7 +16,7 @@ flake8 = "^7.1.0"
 isort = "^5.13.2"
 mypy = "^1.10.1"
 pydantic = "^2.8.2"
-pylint = "^3.2.5"
+pylint = "^3.2.7"
 
 [tool.isort]
 profile = "black"
