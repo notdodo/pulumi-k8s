@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pulumi = "^3.130.0"
+pulumi = "^3.131.0"
 pulumi-kubernetes = "^4.17.1"
 
 [tool.poetry.group.dev.dependencies]
