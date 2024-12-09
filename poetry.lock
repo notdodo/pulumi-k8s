@@ -548,12 +548,12 @@ files = [
 
 [[package]]
 name = "pulumi"
-version = "3.137.0"
+version = "3.142.0"
 description = "Pulumi's Python SDK"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi-3.137.0-py3-none-any.whl", hash = "sha256:d6f170f5fba3d55fb6bc021f1f397310972551ffd21b75f65a92fa6dcf49740b"},
+    {file = "pulumi-3.142.0-py3-none-any.whl", hash = "sha256:659a58a26aa36f585046750f01c3f20113c71fa065ee5a4487c775a9ef98b9b2"},
 ]
 
 [package.dependencies]
@@ -567,13 +567,13 @@ six = ">=1.12,<2.0"
 
 [[package]]
 name = "pulumi-kubernetes"
-version = "4.18.3"
+version = "4.18.4"
 description = "A Pulumi package for creating and managing Kubernetes resources."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pulumi_kubernetes-4.18.3-py3-none-any.whl", hash = "sha256:3e7bcffc13314ffcd50be7a1493b677b4d74bc8031c70a334ce6ba35cfb43bc2"},
-    {file = "pulumi_kubernetes-4.18.3.tar.gz", hash = "sha256:3dd012f052a23dddaf14d0743c025bd4d1361155ca7928f236cf092d79c82e01"},
+    {file = "pulumi_kubernetes-4.18.4-py3-none-any.whl", hash = "sha256:d5742395d689d07e2b74adb7ab5a330c87ac675745be705c47afbf112141d0f8"},
+    {file = "pulumi_kubernetes-4.18.4.tar.gz", hash = "sha256:7d8a55a7087a6bae8e12f5fd1ac7fc04e9ba2e81e9818ac78819e3a2eb755283"},
 ]
 
 [package.dependencies]
@@ -907,4 +907,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "e2cabfd3f39c787e15d6167a2fc8ed6903df3c3bd65653eee23e2785242584a7"
+content-hash = "017df81cb3a15fd92c57d5f3e97ea0b10e355f4d872751960c04f197e81a42ff"
